@@ -7,3 +7,202 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum OAuthProvider {
+  GOOGLE
+  KAKAO
+  NAVER
+  FACEBOOK
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String?
+  password     String? // null if OAuth-only
+  profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // relations
+  projectsOwned   Project[]       @relation("owner_projects")
+  memberships     ProjectMember[]
+  tasksAssigned   Task[]          @relation("task_assignee")
+  comments        Comment[]
+  filesUploaded   File[]
+  invitationsSent Invitation[]    @relation("UserInvitations")
+  refreshTokens   RefreshToken[]  
+  oauthAccounts   OAuthAccount[]  // OAuth 계정 연결
+}
+
+model OAuthAccount {
+  id         Int      @id @default(autoincrement())
+  provider   OAuthProvider   // 'google', 'kakao', 'naver', 'facebook'
+  providerId String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  createdAt  DateTime @default(now())
+
+  refreshTokens RefreshToken[]
+
+  @@unique([provider, providerId])
+  @@index([userId])
+}
+
+model RefreshToken {
+  id             Int           @id @default(autoincrement())
+  token          String        @unique
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         Int
+  oauthAccount   OAuthAccount? @relation(fields: [oauthAccountId], references: [id])
+  oauthAccountId Int?
+  device         String?
+  ip             String?
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  revoked        Boolean  @default(false)
+
+  @@index([userId])
+}
+
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now())
+
+  ownerId Int
+  owner   User @relation("owner_projects", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  members     ProjectMember[]
+  tasks       Task[]
+  invitations Invitation[]
+
+  @@index([ownerId])
+}
+
+model ProjectMember {
+  id        Int        @id @default(autoincrement())
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  role      MemberRole @default(MEMBER)
+  joinedAt  DateTime   @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model Invitation {
+  id        Int       @id @default(autoincrement())
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+  email     String
+  token     String
+  status    String   @default("PENDING")
+
+  invitedBy Int?     
+  inviter   User?     @relation("UserInvitations", fields: [invitedBy], references: [id], onDelete: SetNull)
+
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  @@index([projectId])
+}
+
+model Task {
+  id            Int        @id @default(autoincrement())
+  title         String
+  content       String
+  status        TaskStatus @default(TODO)
+  dueAt         DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  googleEventId String?
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+
+  assignee   User? @relation("task_assignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  assigneeId Int?
+
+  subtasks Subtask[]
+  comments Comment[]
+  files    File[]
+  tags     TaskTag[]
+
+  @@index([projectId])
+}
+
+model Subtask {
+  id        Int      @id @default(autoincrement())
+  title     String
+  isDone    Boolean  @default(false)
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+}
+
+model File {
+  id         Int      @id @default(autoincrement())
+  filename   String
+  url        String
+  mimeType   String?
+  size       Int?
+  uploader   User?    @relation(fields: [uploaderId], references: [id], onDelete: SetNull)
+  uploaderId Int?
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId     Int?
+  createdAt  DateTime @default(now())
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String    @unique
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  id     Int  @id @default(autoincrement())
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId Int
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId  Int
+
+  @@unique([taskId, tagId])
+}
