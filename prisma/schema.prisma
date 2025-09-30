@@ -7,14 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ProjectStatus {
-  ACTIVE
-  ARCHIVED
-}
-
 enum MemberRole {
   OWNER
   MEMBER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
 }
 
 enum TaskStatus {
@@ -24,11 +24,9 @@ enum TaskStatus {
   BLOCKED
 }
 
-enum OAuthProvider {
-  GOOGLE
-  KAKAO
-  NAVER
-  FACEBOOK
+enum SubtaskStatus {
+  TODO
+  DONE
 }
 
 model User {
@@ -37,58 +35,39 @@ model User {
   name         String?
   password     String? // null if OAuth-only
   profileImage String?
+  googleId     String?  @unique // 구글 OAuth용
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  // relations
   projectsOwned   Project[]       @relation("owner_projects")
   memberships     ProjectMember[]
   tasksAssigned   Task[]          @relation("task_assignee")
   comments        Comment[]
   filesUploaded   File[]
   invitationsSent Invitation[]    @relation("UserInvitations")
-  refreshTokens   RefreshToken[]  
-  oauthAccounts   OAuthAccount[]  // OAuth 계정 연결
-}
-
-model OAuthAccount {
-  id         Int      @id @default(autoincrement())
-  provider   OAuthProvider   // 'google', 'kakao', 'naver', 'facebook'
-  providerId String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-  createdAt  DateTime @default(now())
-
-  refreshTokens RefreshToken[]
-
-  @@unique([provider, providerId])
-  @@index([userId])
+  refreshTokens   RefreshToken[]
 }
 
 model RefreshToken {
-  id             Int           @id @default(autoincrement())
-  token          String        @unique
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int
-  oauthAccount   OAuthAccount? @relation(fields: [oauthAccountId], references: [id])
-  oauthAccountId Int?
-  device         String?
-  ip             String?
-  expiresAt      DateTime
-  createdAt      DateTime @default(now())
-  revoked        Boolean  @default(false)
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  device    String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
 
   @@index([userId])
 }
 
-
 model Project {
-  id          Int           @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
-  status      ProjectStatus @default(ACTIVE)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   ownerId Int
   owner   User @relation("owner_projects", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -113,15 +92,15 @@ model ProjectMember {
 }
 
 model Invitation {
-  id        Int       @id @default(autoincrement())
-  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId Int
-  email     String
-  token     String
-  status    String   @default("PENDING")
+  id           Int     @id @default(autoincrement())
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    Int
+  email        String
+  invitationId String // 서버에서 생성하고 DB에 저장되는 고유 초대 코드(UUID 등)
+  status       InvitationStatus  @default(PENDING)
 
-  invitedBy Int?     
-  inviter   User?     @relation("UserInvitations", fields: [invitedBy], references: [id], onDelete: SetNull)
+  invitedBy Int?
+  inviter   User? @relation("UserInvitations", fields: [invitedBy], references: [id], onDelete: SetNull)
 
   createdAt DateTime  @default(now())
   expiresAt DateTime?
@@ -148,7 +127,7 @@ model Task {
   subtasks Subtask[]
   comments Comment[]
   files    File[]
-  tags     TaskTag[]
+  tags     String[]
 
   @@index([projectId])
 }
@@ -156,7 +135,7 @@ model Task {
 model Subtask {
   id        Int      @id @default(autoincrement())
   title     String
-  isDone    Boolean  @default(false)
+  status    SubtaskStatus  @default(TODO)
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId    Int
   createdAt DateTime @default(now())
@@ -189,20 +168,4 @@ model File {
   task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId     Int?
   createdAt  DateTime @default(now())
-}
-
-model Tag {
-  id    Int       @id @default(autoincrement())
-  name  String    @unique
-  tasks TaskTag[]
-}
-
-model TaskTag {
-  id     Int  @id @default(autoincrement())
-  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId Int
-  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId  Int
-
-  @@unique([taskId, tagId])
 }
