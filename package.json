@@ -8,7 +8,7 @@
     "build": "tsc",
     "dev": "nodemon --watch src --exec \"node --loader ts-node/esm src/app.ts\"",
     "start": "node dist/app.js",
-    "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
   },
   "prisma": {
     "seed": "npm run seed"
