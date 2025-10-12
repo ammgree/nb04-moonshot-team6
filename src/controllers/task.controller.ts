@@ -38,4 +38,17 @@ export const TaskController = {
       res.status(400).json({ message: "잘못된 요청 형식" });
     }
   },
+
+  updatedTask: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const taskId = Number(req.params.taskId);
+
+      const updateTask = await TaskService.updateTask(req.body, taskId);
+
+      res.json(updateTask);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: "잘못된 요청 형식" });
+    }
+  },
 };

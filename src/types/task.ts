@@ -50,3 +50,27 @@ export interface TaskWithRelations extends Task {
   content: string; // 'description' 대응
   assigneeId: number | null;
 }
+
+export interface UpdateTaskData {
+  title?: string;
+  startYear?: number;
+  startMonth?: number;
+  startDay?: number;
+  endYear?: number;
+  endMonth?: number;
+  endDay?: number;
+  status?: TaskStatus;
+  assigneeId?: number;
+  tags?: string[];
+  attachments?: string[];
+}
+
+export interface UpdateTaskPrismaInput {
+  title?: string;
+  content?: string;
+  startAt?: Date;
+  endAt?: Date;
+  status?: TaskStatus;
+  assigneeId?: number;
+  tags?: string[];
+}

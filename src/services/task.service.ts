@@ -2,15 +2,17 @@ import type {
   CreateTaskData,
   GetTasksQuery,
   TaskWithRelations,
+  UpdateTaskData,
+  UpdateTaskPrismaInput,
 } from "types/task.js";
 import { OrderBy, Order } from "../types/task.js";
 import { TaskRepository } from "../repositories/task.repository.js";
 
 function formatDateToParts(date: Date) {
   return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
-    day: date.getUTCDate(),
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
   };
 }
 
@@ -44,6 +46,37 @@ function TaskToResponse(task: TaskWithRelations) {
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
   };
+}
+
+function UpdateTaskDataToPrisma(data: UpdateTaskData): UpdateTaskPrismaInput {
+  const input: UpdateTaskPrismaInput = {};
+
+  if (data.title !== undefined) input.title = data.title;
+  if (data.status !== undefined) input.status = data.status;
+  if (data.assigneeId !== undefined) input.assigneeId = data.assigneeId;
+  if (data.tags !== undefined) input.tags = data.tags;
+
+  if (
+    data.startYear !== undefined &&
+    data.startMonth !== undefined &&
+    data.startDay !== undefined
+  ) {
+    input.startAt = new Date(
+      data.startYear,
+      data.startMonth - 1,
+      data.startDay
+    );
+  }
+
+  if (
+    data.endYear !== undefined &&
+    data.endMonth !== undefined &&
+    data.endDay !== undefined
+  ) {
+    input.endAt = new Date(data.endYear, data.endMonth - 1, data.endDay);
+  }
+
+  return input;
 }
 
 export const TaskService = {
@@ -94,5 +127,13 @@ export const TaskService = {
       throw new Error("Task not found");
     }
     return TaskToResponse(task);
+  },
+
+  updateTask: async (body: UpdateTaskData, taskId: number) => {
+    const prismaInput = UpdateTaskDataToPrisma(body);
+
+    const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
+
+    return TaskToResponse(updateTask);
   },
 };

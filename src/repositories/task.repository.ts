@@ -1,5 +1,9 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-import type { CreateTaskPrismaInput, GetTasksQuery } from "../types/task.js";
+import type {
+  CreateTaskPrismaInput,
+  GetTasksQuery,
+  UpdateTaskPrismaInput,
+} from "../types/task.js";
 
 const prisma = new PrismaClient();
 
@@ -74,6 +78,24 @@ export const TaskRepository = {
       where: { id: taskId },
       include: {
         assignee: true,
+        files: true,
+      },
+    });
+  },
+
+  updateTask: async (data: UpdateTaskPrismaInput, taskId: number) => {
+    return await prisma.task.update({
+      where: { id: taskId },
+      data,
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profileImage: true,
+          },
+        },
         files: true,
       },
     });
