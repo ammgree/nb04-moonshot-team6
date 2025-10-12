@@ -11,6 +11,29 @@ export enum OrderBy {
   end_date = "endAt",
 }
 
+export interface CreateTaskData {
+  title: string;
+  description: string;
+  startYear: number;
+  startMonth: number;
+  startDay: number;
+  endYear: number;
+  endMonth: number;
+  endDay: number;
+  assigneeId: number;
+  tags?: string[];
+}
+
+export interface CreateTaskPrismaInput {
+  title: string;
+  content: string;
+  startAt: Date;
+  endAt: Date;
+  projectId: number;
+  assigneeId: number;
+  tags?: string[];
+}
+
 export interface GetTasksQuery {
   page?: number;
   limit?: number;

@@ -1,9 +1,19 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-import type { GetTasksQuery } from "../types/task.js";
+import type { CreateTaskPrismaInput, GetTasksQuery } from "../types/task.js";
 
 const prisma = new PrismaClient();
 
 export const TaskRepository = {
+  createTask: async (data: CreateTaskPrismaInput) => {
+    return await prisma.task.create({
+      data,
+      include: {
+        assignee: true,
+        files: true,
+      },
+    });
+  },
+
   getTasks: async (query: GetTasksQuery) => {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;

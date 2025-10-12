@@ -1,4 +1,8 @@
-import type { GetTasksQuery, TaskWithRelations } from "types/task.js";
+import type {
+  CreateTaskData,
+  GetTasksQuery,
+  TaskWithRelations,
+} from "types/task.js";
 import { OrderBy, Order } from "../types/task.js";
 import { TaskRepository } from "../repositories/task.repository.js";
 
@@ -43,6 +47,27 @@ function TaskToResponse(task: TaskWithRelations) {
 }
 
 export const TaskService = {
+  createTask: async (body: CreateTaskData, projectId: number) => {
+    const startAt = new Date(
+      body.startYear,
+      body.startMonth - 1,
+      body.startDay
+    );
+    const endAt = new Date(body.endYear, body.endMonth - 1, body.endDay);
+
+    const task = await TaskRepository.createTask({
+      title: body.title,
+      content: body.description,
+      startAt,
+      endAt,
+      projectId,
+      assigneeId: body.assigneeId,
+      tags: body.tags ?? [],
+    });
+
+    return TaskToResponse(task);
+  },
+
   getTasks: async (query: GetTasksQuery) => {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
