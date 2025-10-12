@@ -102,8 +102,8 @@ export const TaskService = {
   },
 
   getTasks: async (query: GetTasksQuery) => {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
+    const page = Number(query.page) ?? 1;
+    const limit = Number(query.limit) ?? 10;
     const order_by = query.order_by ?? OrderBy.created_at;
     const order = query.order ?? Order.desc;
 
