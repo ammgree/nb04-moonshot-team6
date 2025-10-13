@@ -100,4 +100,10 @@ export const TaskRepository = {
       },
     });
   },
+
+  deleteTask: async (taskId: number) => {
+    await prisma.task.delete({
+      where: { id: taskId },
+    });
+  },
 };

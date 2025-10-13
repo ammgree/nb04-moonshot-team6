@@ -102,8 +102,8 @@ export const TaskService = {
   },
 
   getTasks: async (query: GetTasksQuery) => {
-    const page = Number(query.page) ?? 1;
-    const limit = Number(query.limit) ?? 10;
+    const page = Number(query.page ?? 1);
+    const limit = Number(query.limit ?? 10);
     const order_by = query.order_by ?? OrderBy.created_at;
     const order = query.order ?? Order.desc;
 
@@ -135,5 +135,15 @@ export const TaskService = {
     const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
 
     return TaskToResponse(updateTask);
+  },
+
+  deleteTask: async (taskId: number) => {
+    const task = await TaskRepository.getTaskId(taskId);
+
+    if (!task) {
+      throw new Error("할 일을 찾을 수 없습니다.");
+    }
+
+    await TaskRepository.deleteTask(taskId);
   },
 };

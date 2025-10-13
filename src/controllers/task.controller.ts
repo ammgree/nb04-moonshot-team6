@@ -19,7 +19,7 @@ export const TaskController = {
     try {
       const tasks = await TaskService.getTasks(req.query);
 
-      res.json(tasks);
+      res.status(200).json(tasks);
     } catch (error) {
       console.error(error);
       res.status(400).json({ message: "잘못된 요청 형식" });
@@ -32,7 +32,7 @@ export const TaskController = {
 
       const task = await TaskService.getTaskId(taskId);
 
-      res.json(task);
+      res.status(200).json(task);
     } catch (error) {
       console.error(error);
       res.status(400).json({ message: "잘못된 요청 형식" });
@@ -45,7 +45,20 @@ export const TaskController = {
 
       const updateTask = await TaskService.updateTask(req.body, taskId);
 
-      res.json(updateTask);
+      res.status(200).json(updateTask);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ message: "잘못된 요청 형식" });
+    }
+  },
+
+  deleteTask: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const taskId = Number(req.params.taskId);
+
+      await TaskService.deleteTask(taskId);
+
+      res.status(204).send();
     } catch (error) {
       console.error(error);
       res.status(400).json({ message: "잘못된 요청 형식" });
