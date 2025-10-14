@@ -40,3 +40,6 @@ test.http
 scripts/
 /src/generated/prisma
 uploads/
+
+# 시드파일
+prisma/seed.ts
