@@ -49,4 +49,23 @@ export const SubtaskController = {
       res.status(500).json({ message: "서버 오류" });
     }
   },
+
+  updateSubtask: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subtaskId = Number(req.params.subtaskId);
+
+      const { title } = req.body;
+
+      const updateSubtask = await SubtaskService.updateSubtask(
+        subtaskId,
+        title
+      );
+
+      return res.status(200).json(updateSubtask);
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({ message: "서버 오류" });
+    }
+  },
 };

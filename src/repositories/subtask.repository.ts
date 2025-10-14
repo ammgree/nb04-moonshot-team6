@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const SubtaskRepository = {
   createSubtask: async (taskId: number, title: string) => {
-    return prisma.subtask.create({
+    return await prisma.subtask.create({
       data: {
         title,
         taskId,
@@ -27,9 +27,18 @@ export const SubtaskRepository = {
   },
 
   getSubtaskId: async (subtaskId: number) => {
-    return prisma.subtask.findUnique({
+    return await prisma.subtask.findUnique({
       where: {
         id: subtaskId,
+      },
+    });
+  },
+
+  updateSubtask: async (subtaskId: number, title: string) => {
+    return await prisma.subtask.update({
+      where: { id: subtaskId },
+      data: {
+        title,
       },
     });
   },

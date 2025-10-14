@@ -24,4 +24,8 @@ export const SubtaskService = {
 
     return subtask;
   },
+
+  updateSubtask: async (subtaskId: number, title: string) => {
+    return await SubtaskRepository.updateSubtask(subtaskId, title);
+  },
 };
