@@ -68,4 +68,18 @@ export const SubtaskController = {
       res.status(500).json({ message: "서버 오류" });
     }
   },
+
+  deleteSubtask: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const subtaskId = Number(req.params.subtaskId);
+
+      await SubtaskService.deleteSubtask(subtaskId);
+
+      res.status(204).send();
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({ message: "서버 오류" });
+    }
+  },
 };

@@ -28,4 +28,14 @@ export const SubtaskService = {
   updateSubtask: async (subtaskId: number, title: string) => {
     return await SubtaskRepository.updateSubtask(subtaskId, title);
   },
+
+  deleteSubtask: async (subtaskId: number) => {
+    const subtask = await TaskRepository.getTaskId(subtaskId);
+
+    if (!subtask) {
+      throw new Error("할 일을 찾을 수 없습니다.");
+    }
+
+    await SubtaskRepository.deleteSubtask(subtaskId);
+  },
 };

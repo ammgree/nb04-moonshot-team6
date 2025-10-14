@@ -42,4 +42,10 @@ export const SubtaskRepository = {
       },
     });
   },
+
+  deleteSubtask: async (subtaskId: number) => {
+    await prisma.subtask.delete({
+      where: { id: subtaskId },
+    });
+  },
 };
