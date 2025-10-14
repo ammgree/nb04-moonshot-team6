@@ -1,8 +1,8 @@
-import SubtaskController from "../controllers/subtask.controller.js";
+import { SubtaskController } from "../controllers/subtask.controller.js";
 import express from "express";
 
-const subtaskRouter = express.Router({ mergeParams: true });
+const router = express.Router();
 
-subtaskRouter.post("/subtasks", SubtaskController.createSubtask);
+router.get("/:subtaskId", SubtaskController.getSubtaskId);
 
-export default subtaskRouter;
+export default router;

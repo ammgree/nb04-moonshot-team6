@@ -10,4 +10,18 @@ export const SubtaskService = {
 
     return SubtaskRepository.createSubtask(taskId, title);
   },
+
+  getSubtasks: async (taskId: number, page: number, limit: number) => {
+    return await SubtaskRepository.getSubtasks(taskId, page, limit);
+  },
+
+  getSubtaskId: async (subtaskId: number) => {
+    const subtask = await SubtaskRepository.getSubtaskId(subtaskId);
+
+    if (!subtask) {
+      throw new Error("하위 할 일을 찾을 수 없습니다.");
+    }
+
+    return subtask;
+  },
 };
