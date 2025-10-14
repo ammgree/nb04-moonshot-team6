@@ -16,7 +16,8 @@ export const TaskController = {
       res.status(201).json(newTask);
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: "할 일 생성 실패" });
+
+      res.status(500).json({ message: "서버 오류" });
     }
   },
 
@@ -30,7 +31,8 @@ export const TaskController = {
       res.status(200).json(tasks);
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: "잘못된 요청 형식" });
+
+      res.status(500).json({ message: "서버 오류" });
     }
   },
 
@@ -44,7 +46,8 @@ export const TaskController = {
       res.status(200).json(task);
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: "잘못된 요청 형식" });
+
+      res.status(500).json({ message: "서버 오류" });
     }
   },
 
@@ -58,7 +61,8 @@ export const TaskController = {
       res.status(200).json(updateTask);
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: "잘못된 요청 형식" });
+
+      res.status(500).json({ message: "서버 오류" });
     }
   },
 
@@ -72,7 +76,8 @@ export const TaskController = {
       res.status(204).send();
     } catch (error) {
       console.error(error);
-      res.status(400).json({ message: "잘못된 요청 형식" });
+
+      res.status(500).json({ message: "서버 오류" });
     }
   },
 };
