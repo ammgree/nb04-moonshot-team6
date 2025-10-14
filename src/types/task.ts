@@ -13,7 +13,7 @@ export enum OrderBy {
 
 export interface CreateTaskData {
   title: string;
-  description: string;
+  content: string;
   startYear: number;
   startMonth: number;
   startDay: number;

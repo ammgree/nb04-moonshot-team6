@@ -4,9 +4,118 @@ import type {
   TaskWithRelations,
   UpdateTaskData,
   UpdateTaskPrismaInput,
-} from "types/task.js";
+} from "../types/task.js";
 import { OrderBy, Order } from "../types/task.js";
 import { TaskRepository } from "../repositories/task.repository.js";
+
+export const TaskService = {
+  createTask: async (
+    body: CreateTaskData,
+    projectId: number,
+    assigneeId: number
+  ) => {
+    const startAt = new Date(
+      body.startYear,
+      body.startMonth - 1,
+      body.startDay
+    );
+    const endAt = new Date(body.endYear, body.endMonth - 1, body.endDay);
+
+    const task = await TaskRepository.createTask({
+      title: body.title,
+      content: body.content,
+      startAt,
+      endAt,
+      projectId,
+      assigneeId: assigneeId,
+      tags: body.tags ?? [],
+    });
+
+    return TaskToResponse(task);
+  },
+
+  getTasks: async (projectId: number, userId: number, query: GetTasksQuery) => {
+    const isMember = await TaskRepository.findProjectMemberByProjectId(
+      projectId,
+      userId
+    );
+
+    if (!isMember) {
+      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+    }
+
+    const page = Number(query.page ?? 1);
+    const limit = Number(query.limit ?? 10);
+    const order_by = query.order_by ?? OrderBy.created_at;
+    const order = query.order ?? Order.desc;
+
+    const { data: tasks, total } = await TaskRepository.getTasks(projectId, {
+      ...query,
+      page,
+      limit,
+      order_by,
+      order,
+    });
+
+    const formattedTasks = tasks.map((task) => TaskToResponse(task));
+
+    return { data: formattedTasks, total };
+  },
+
+  getTaskId: async (taskId: number, userId: number) => {
+    const isMember = await TaskRepository.findProjectMemberByTaskId(
+      taskId,
+      userId
+    );
+
+    if (!isMember) {
+      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+    }
+
+    const task = await TaskRepository.getTaskId(taskId);
+
+    if (!task) {
+      throw new Error("Task not found");
+    }
+    return TaskToResponse(task);
+  },
+
+  updateTask: async (body: UpdateTaskData, taskId: number, userId: number) => {
+    const isMember = await TaskRepository.findProjectMemberByTaskId(
+      taskId,
+      userId
+    );
+
+    if (!isMember) {
+      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+    }
+
+    const prismaInput = UpdateTaskDataToPrisma(body);
+
+    const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
+
+    return TaskToResponse(updateTask);
+  },
+
+  deleteTask: async (taskId: number, userId: number) => {
+    const isMember = await TaskRepository.findProjectMemberByTaskId(
+      taskId,
+      userId
+    );
+
+    if (!isMember) {
+      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+    }
+
+    const task = await TaskRepository.getTaskId(taskId);
+
+    if (!task) {
+      throw new Error("할 일을 찾을 수 없습니다.");
+    }
+
+    await TaskRepository.deleteTask(taskId);
+  },
+};
 
 function formatDateToParts(date: Date) {
   return {
@@ -32,7 +141,7 @@ function TaskToResponse(task: TaskWithRelations) {
     id: task.id,
     projectId: task.projectId,
     title: task.title,
-    description: task.content,
+    content: task.content,
     startYear,
     startMonth,
     startDay,
@@ -78,72 +187,3 @@ function UpdateTaskDataToPrisma(data: UpdateTaskData): UpdateTaskPrismaInput {
 
   return input;
 }
-
-export const TaskService = {
-  createTask: async (body: CreateTaskData, projectId: number) => {
-    const startAt = new Date(
-      body.startYear,
-      body.startMonth - 1,
-      body.startDay
-    );
-    const endAt = new Date(body.endYear, body.endMonth - 1, body.endDay);
-
-    const task = await TaskRepository.createTask({
-      title: body.title,
-      content: body.description,
-      startAt,
-      endAt,
-      projectId,
-      assigneeId: body.assigneeId,
-      tags: body.tags ?? [],
-    });
-
-    return TaskToResponse(task);
-  },
-
-  getTasks: async (query: GetTasksQuery) => {
-    const page = Number(query.page ?? 1);
-    const limit = Number(query.limit ?? 10);
-    const order_by = query.order_by ?? OrderBy.created_at;
-    const order = query.order ?? Order.desc;
-
-    const { data: tasks, total } = await TaskRepository.getTasks({
-      ...query,
-      page,
-      limit,
-      order_by,
-      order,
-    });
-
-    const formattedTasks = tasks.map((task) => TaskToResponse(task));
-
-    return { data: formattedTasks, total };
-  },
-
-  getTaskId: async (taskId: number) => {
-    const task = await TaskRepository.getTaskId(taskId);
-
-    if (!task) {
-      throw new Error("Task not found");
-    }
-    return TaskToResponse(task);
-  },
-
-  updateTask: async (body: UpdateTaskData, taskId: number) => {
-    const prismaInput = UpdateTaskDataToPrisma(body);
-
-    const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
-
-    return TaskToResponse(updateTask);
-  },
-
-  deleteTask: async (taskId: number) => {
-    const task = await TaskRepository.getTaskId(taskId);
-
-    if (!task) {
-      throw new Error("할 일을 찾을 수 없습니다.");
-    }
-
-    await TaskRepository.deleteTask(taskId);
-  },
-};

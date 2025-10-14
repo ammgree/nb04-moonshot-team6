@@ -18,7 +18,7 @@ export const TaskRepository = {
     });
   },
 
-  getTasks: async (query: GetTasksQuery) => {
+  getTasks: async (projectId: number, query: GetTasksQuery) => {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;
 
@@ -37,7 +37,14 @@ export const TaskRepository = {
     }
 
     const where: Prisma.TaskWhereInput =
-      filter.length > 0 ? { OR: filter } : {};
+      filter.length > 0
+        ? {
+            AND: [
+              { projectId }, // 항상 포함
+              { OR: filter }, // 여러 필터 중 하나만 만족하면 통과
+            ],
+          }
+        : { projectId };
 
     let orderBy: Prisma.TaskOrderByWithRelationInput = {
       createdAt: "desc",
@@ -104,6 +111,29 @@ export const TaskRepository = {
   deleteTask: async (taskId: number) => {
     await prisma.task.delete({
       where: { id: taskId },
+    });
+  },
+
+  findProjectMemberByTaskId: async (taskId: number, userId: number) => {
+    const project = await prisma.project.findFirst({
+      where: {
+        tasks: {
+          some: { id: taskId },
+        },
+        members: {
+          some: { userId },
+        },
+      },
+    });
+    return !!project;
+  },
+
+  findProjectMemberByProjectId: async (projectId: number, userId: number) => {
+    return await prisma.projectMember.findFirst({
+      where: {
+        projectId,
+        userId,
+      },
     });
   },
 };
