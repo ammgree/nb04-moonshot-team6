@@ -25,13 +25,16 @@
   },
   "homepage": "https://github.com/ammgree/nb04-moonshot-team6#readme",
   "dependencies": {
-    "@prisma/client": "6.16.2",
+    "@prisma/client": "^6.16.3",
     "bcrypt": "6.0.0",
+    "configs": "^1.0.3",
     "cookie-parser": "1.4.7",
-    "cors": "2.8.5",
+    "cors": "^2.8.5",
     "dotenv": "17.2.3",
     "express": "5.1.0",
+    "express-jwt": "^8.5.1",
     "multer": "2.0.2",
+    "node": "^24.9.0",
     "passport": "0.7.0",
     "passport-google-oauth20": "2.0.0",
     "passport-jwt": "4.0.1",
@@ -50,7 +53,7 @@
     "@types/passport-jwt": "4.0.1",
     "@types/passport-local": "1.0.38",
     "nodemon": "3.1.10",
-    "prisma": "6.16.2",
+    "prisma": "^6.16.2",
     "ts-node": "10.9.2",
     "typescript": "5.9.2"
   }
