@@ -1,0 +1,5 @@
+const DEFAULT_PAGE = 1;
+const MIN_PAGESIZE = 1;
+const MAX_PAGESIZE = 10;
+
+export { DEFAULT_PAGE, MIN_PAGESIZE, MAX_PAGESIZE };
