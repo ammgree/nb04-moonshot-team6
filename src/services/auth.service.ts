@@ -13,7 +13,10 @@ const getLogin = async(email: string, password: string) => {
   if (!user) {
     throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
   }
-  await auth.verifyPassword(password, user.password!);
+  const isMatch = await auth.verifyPassword(password, user.password!);
+  if (!isMatch) {
+    throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
+  }
   const accessToken = auth.createToken(user);
   const refreshToken = auth.createToken(user, 'refresh');
 

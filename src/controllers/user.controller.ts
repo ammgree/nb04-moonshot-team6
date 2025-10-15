@@ -6,7 +6,7 @@
 //   req: Request,
 //   res: Response
 // ) => {
-//     const user = await service.createUsers(req.body as object);
+//     const user = await service.createUsers(req.body);
 //     res.status(200).json(user);
 // };
 

@@ -63,7 +63,10 @@ const updateUser = async(req: Request, res: Response) => {
   if (!user) {
     return res.status(404).send({ errorMessage: '유저를 찾을 수 없습니다.' });
   }
-  await auth.verifyPassword(req.body.currentPassword, user.password!);
+  const isMatch = await auth.verifyPassword(req.body.currentPassword, user.password!);
+  if (!isMatch) {
+    throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
+  }
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: { email: req.body.email,
