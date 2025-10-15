@@ -1,4 +1,5 @@
 import * as repo from "../repositories/project.repository.js";
+import auth from '../middlewares/auth.middleware.js';
 import bcrypt from 'bcrypt';
 import prisma from '../configs/prisma.js';
 import type { Request, Response } from 'express';
@@ -40,69 +41,54 @@ declare global {
 
 // 유저 조회
 const getUser = async(req: Request, res: Response) => {
-  if (!req.token) {
+  if (!req.user) {
     return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
   }
-  const userId = Number(req.token.userId);
+  const userId = Number(req.user.id);
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
   res.status(200).json(user);
 };
 
-/*
-const getProjectsWithCounts = async (req: Request, res: Response) => {
-  const ownerId = req.token ? Number(req.token.userId) : 0;
-  const offset = Number(req.query.offset || 0);
-  const limit = Number(req.query.limit || 10);
-
-  const result = await prisma.$queryRaw<
-    Array<{
-      id: number,
-      name: string,
-      description: string,
-      memberCount: number,
-      todoCount: number,
-      inProgressCount: number,
-      doneCount: number,
-    }>
-  >`
-    SELECT 
-      p.id,
-      p.name,
-      p.description,
-      COUNT(DISTINCT pm.id) ::INT AS "memberCount",
-      SUM(CASE WHEN t.status = 'TODO' THEN 1 ELSE 0 END) ::INT AS "todoCount",
-      SUM(CASE WHEN t.status = 'IN_PROGRESS' THEN 1 ELSE 0 END) ::INT AS "inProgressCount",
-      SUM(CASE WHEN t.status = 'DONE' THEN 1 ELSE 0 END) ::INT AS "doneCount",
-      p."createdAt" AS "createdAt",
-      p."updatedAt" AS "updatedAt"
-    FROM "Project" p
-    LEFT JOIN "ProjectMember" pm ON pm."projectId" = p.id
-    LEFT JOIN "Task" t ON t."projectId" = p.id
-    WHERE pm."userId" = ${ownerId}
-    GROUP BY p.id
-    ORDER BY p."createdAt" DESC
-    LIMIT ${limit} OFFSET ${offset};
-  `;
-  res.status(200).json({ data: result });
+// 유저 수정
+const updateUser = async(req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
+  }
+  const userId = Number(req.user.id);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    return res.status(404).send({ errorMessage: '유저를 찾을 수 없습니다.' });
+  }
+  await auth.verifyPassword(req.body.currentPassword, user.password!);
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { email: req.body.email,
+            name: req.body.name,
+            password: req.body.newPassword ? await bcrypt.hash(req.body.newPassword, 10) : user.password
+          },
+  });
+  res.status(200).json(updatedUser);
 };
-*/
 
+// 유저 프로젝트 조회
 export const getUserProjects = async (
   userId: number,
   sort: "latest" | "name" = "latest"
 ) => {
   const projects = await repo.getUserProjectsRepo(userId, sort);
-  const data = projects.map((p) => ({
+  const data = projects.map((p:any) => ({
     id: p.id,
     name: p.name,
     description: p.description ?? "",
     memberCount: p.members.length,
-    todoCount: p.tasks?.filter((t) => t.status === "TODO").length ?? 0,
+    todoCount: p.tasks?.filter((t:any) => t.status === "TODO").length ?? 0,
     inProgressCount:
-      p.tasks?.filter((t) => t.status === "IN_PROGRESS").length ?? 0,
-    doneCount: p.tasks?.filter((t) => t.status === "DONE").length ?? 0,
+      p.tasks?.filter((t:any) => t.status === "IN_PROGRESS").length ?? 0,
+    doneCount: p.tasks?.filter((t:any) => t.status === "DONE").length ?? 0,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   }));
@@ -116,5 +102,6 @@ export const getUserProjects = async (
 export default {
   createUsers,
   getUser,
+  updateUser,
   getUserProjects
 };

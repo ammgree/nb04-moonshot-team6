@@ -23,12 +23,12 @@ async function verifyPassword(
 const verifyAccessToken = expressjwt({
   secret: process.env.JWT_SECRET!,
   algorithms: ['HS256'],
-  requestProperty: 'token'
+  requestProperty: 'user'
 });
 
 // 토큰 생성 함수
 const createToken = (user: { id: number }, type?: string) => {
-  const payload = { userId: user.id };
+  const payload = { id: user.id };
   const options: jwt.SignOptions = {
     expiresIn: type === 'refresh' ? '2w' : '1h'
   };

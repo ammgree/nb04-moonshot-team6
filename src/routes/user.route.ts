@@ -10,10 +10,11 @@ router
   .route('/auth/register')
   .post(UserService.createUsers);
 
-// 유저 조회 라우터
+// 유저 조회, 수정 라우터
 router
   .route('/users/me')
-  .get(auth.verifyAccessToken, UserService.getUser);
+  .get(auth.verifyAccessToken, UserService.getUser)
+  .patch(auth.verifyAccessToken, UserService.updateUser);
 
 // 프로젝트 조회 라우터
 router

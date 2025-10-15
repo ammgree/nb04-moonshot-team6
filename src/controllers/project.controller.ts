@@ -5,7 +5,7 @@ export const getUserProjectsController = async (
   req: Request,
   res: Response
 ) => {
-    const userId = Number(req.token?.userId);
+    const userId = Number(req.user?.id);
     const sort = req.query.sort === "name" ? "name" : "latest";
     const projects = await service.getUserProjects(userId, sort);
     res.status(200).json(projects);
