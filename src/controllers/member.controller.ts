@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import * as memberService from "../services/member.service.js";
 import { randomUUID } from "crypto";
+import { AppError, getErrorMessage } from "utils/error.js";
 
 // 프로젝트 멤버 조회
 export async function getMembers(req: Request, res: Response) {
@@ -10,9 +11,12 @@ export async function getMembers(req: Request, res: Response) {
     const limit = Number(req.query.limit) || 10;
     const result = await memberService.getMembers(page, limit, projectId);
     res.status(200).json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: getErrorMessage(err) });
+    }
   }
 }
 
@@ -23,9 +27,12 @@ export async function deleteMember(req: Request, res: Response) {
     const userId = Number(req.params.userId);
     await memberService.deleteMember(projectId, userId);
     res.status(200).json({ message: "success" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: getErrorMessage(err) });
+    }
   }
 }
 
@@ -41,9 +48,12 @@ export async function inviteMember(req: Request, res: Response) {
       invitationId
     );
     res.status(200).json({ "초대 링크": result });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error });
+  } catch (err) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: getErrorMessage(err) });
+    }
   }
 }
 
@@ -54,8 +64,12 @@ export async function acceptInvitation(req: Request, res: Response) {
     const userId = Number(req.body.userId); // 임시로 userId를 body로 받음
     const result = await memberService.acceptInvitation(invitationId, userId);
     res.status(200).json(result);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: getErrorMessage(err) });
+    }
   }
 }
 
@@ -65,8 +79,11 @@ export async function deleteInvitation(req: Request, res: Response) {
     const invitationId = req.params.invitationId!;
     await memberService.deleteInvitation(invitationId);
     res.status(200).json({ message: "초대가 취소되었습니다." });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+  } catch (err) {
+    if (err instanceof AppError) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: getErrorMessage(err) });
+    }
   }
 }
