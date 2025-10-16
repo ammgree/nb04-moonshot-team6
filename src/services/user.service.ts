@@ -1,50 +1,39 @@
 import * as repo from "../repositories/project.repository.js";
+import * as userRepo from "../repositories/user.repository.js";
 import auth from '../middlewares/auth.middleware.js';
 import bcrypt from 'bcrypt';
 import prisma from '../configs/prisma.js';
 import type { Request, Response } from 'express';
 import express from 'express';
+import createError  from 'http-errors';
 
 const app = express();
 app.use(express.json());
 
 // 회원가입 서비스
-const createUsers = async(req: Request, res: Response) => {
+const createUsers = async(userData:{email:string, name:string, password:string}) => {
   const existUser = await prisma.user.findUnique({
-    where: { email: req.body.email }
+    where: { email: userData.email }
   });
   if (existUser) {
-    return res.status(409).send({ errorMessage: '이미 가입된 이메일입니다.' });
+    throw new createError .Conflict('이미 가입된 이메일입니다.');
   }
   const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.password, salt);
-  const user = await prisma.user.create({
-    data: {
-      ...req.body,
-      password: hashedPassword,
-    },
+  const hashedPassword = await bcrypt.hash(userData.password, salt);
+  const user = await userRepo.createUser({
+    email: userData.email,
+    name: userData.name,
+    password: hashedPassword,
   });
-  const { password, ...safeUser } = user;
-  res.status(201).send(safeUser);
+  return user;
 };
-
-declare global {
-  namespace Express {
-    interface Request {
-      token?: {
-        userId: number;
-        [key: string]: any;
-      };
-    }
-  }
-}
 
 // 유저 조회
 const getUser = async(req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
   }
-  const userId = Number(req.user.id);
+  const userId = req.user.id;
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -56,7 +45,7 @@ const updateUser = async(req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
   }
-  const userId = Number(req.user.id);
+  const userId = req.user.id;
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -71,7 +60,8 @@ const updateUser = async(req: Request, res: Response) => {
     where: { id: userId },
     data: { email: req.body.email,
             name: req.body.name,
-            password: req.body.newPassword ? await bcrypt.hash(req.body.newPassword, 10) : user.password
+            password: req.body.newPassword ? await bcrypt.hash(req.body.newPassword, 10) : user.password,
+            profileImage: req.body.profileImage ? req.body.profileImage : user.profileImage
           },
   });
   res.status(200).json(updatedUser);

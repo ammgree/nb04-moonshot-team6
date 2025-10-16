@@ -2,13 +2,14 @@ import express from 'express';
 import UserService from '../services/user.service.js';
 import auth from '../middlewares/auth.middleware.js';
 import controller from '../controllers/project.controller.js';
+import userController from '../controllers/user.controller.js';
 
 const router = express.Router();
 
 // 회원가입 라우터
 router
   .route('/auth/register')
-  .post(UserService.createUsers);
+  .post(userController.createUserController);
 
 // 유저 조회, 수정 라우터
 router
