@@ -6,12 +6,19 @@ import prisma from '../configs/prisma.js';
 import type { Request, Response } from 'express';
 import express from 'express';
 import createError  from 'http-errors';
+import { uploadBuffer } from '../services/upload.service.js';
 
 const app = express();
 app.use(express.json());
 
 // 회원가입 서비스
-const createUsers = async(userData:{email:string, name:string, password:string}) => {
+const createUsers = async(
+  userData:{
+    email:string, 
+    name:string, 
+    password:string,
+    profileImage: string
+  }) => {
   const existUser = await prisma.user.findUnique({
     where: { email: userData.email }
   });
@@ -24,6 +31,7 @@ const createUsers = async(userData:{email:string, name:string, password:string})
     email: userData.email,
     name: userData.name,
     password: hashedPassword,
+    profileImage: userData.profileImage,
   });
   return user;
 };
