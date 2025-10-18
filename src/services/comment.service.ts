@@ -1,5 +1,9 @@
 import prisma from "../configs/prisma.js";
 import { HttpError } from "../utils/HttpError.js";
+import { commentRepo } from "../repositories/comment.repository.js";
+import type { commentResponse } from "../repositories/comment.repository.js";
+
+const CommentRepo = new commentRepo();
 
 export async function createdComment(userId: number, taskId: number, content: string) {
   if (!userId) 
@@ -25,31 +29,8 @@ export async function createdComment(userId: number, taskId: number, content: st
   if (!isMember) {
     throw new HttpError("프로젝트 멤버가 아닙니다", 403);
   }
-
-  const Comment = await prisma.comment.create({
-    data: {
-      content,
-      authorId: userId,
-      taskId,
-    },
-    select: {
-      id: true,
-      content: true,
-      taskId: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          profileImage: true
-    }
-  },
-      createdAt: true,
-      updatedAt: true,
-    }
-  });
   
-  return Comment;
+  return await CommentRepo.create({ content, taskId, authorId: userId })
 }
 
 
@@ -101,32 +82,7 @@ export async function getedtaskComment(userId: number, taskId: number, page: num
     where: { taskId },
   });
 
-  const getedComment = await prisma.comment.findMany({
-    where: { taskId }, 
-	  select: {
-      id: true,
-		  content: true,
-		  taskId: true,
-		  author: {
-        select:  {
-		      id: true,
-		      name: true,
-		      email: true,
-		      profileImage: true,
-        },
-		  },
-		  createdAt: true,
-		  updatedAt: true,
-	  },
-    orderBy: { createdAt: "desc" },
-    skip: (page - 1) * limit,
-    take: limit,
-    });
-
-    return {
-      data: getedComment, 
-      total, 
-    };
+  return await CommentRepo.findByTask(taskId, page, limit);
  }
 
 
@@ -157,25 +113,7 @@ export async function getedComment(userId: number, taskId: number) {
     throw new HttpError("프로젝트 멤버가 아닙니다", 403);
   }
 
-  const comments = await prisma.comment.findMany({
-    where: { taskId },
-    select: {
-      id: true,
-      content: true,
-      taskId: true,
-      author: { 
-         select: {
-          id: true,
-          name: true,
-         email: true,
-          profileImage: true,
-        },
-     },
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-   return comments;
+  return await CommentRepo.findComment(taskId);
 }
 
 
@@ -198,8 +136,10 @@ export async function patchedComment(userId: number, commentId: number, taskId: 
   }
 
   const membership = await prisma.projectMember.findFirst({
-    where: { userId },
-    include: { project: true }
+    where: {
+      userId,
+      projectId: task.projectId,
+    },
   });
   
   if (!membership) {
@@ -214,26 +154,7 @@ export async function patchedComment(userId: number, commentId: number, taskId: 
     throw new HttpError("자신이 작성한 댓글만 수정할 수 있습니다", 403);
   }
 
-  const comment = await prisma.comment.update({
-    where: { id: commentId },
-    data: { content },
-    select : {
-      id: true,
-      content: true,
-      taskId: true,
-      createdAt: true,
-      updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          profileImage: true,
-        }
-      }
-    }
-  });
-  return comment
+  return await CommentRepo.updateComment(commentId, content);
 }
 
 
@@ -272,7 +193,5 @@ export async function deletedComment(userId: number, taskId: number, commentId: 
     throw new HttpError("자신이 작성한 댓글만 수정할 수 있습니다", 403);
   }
   
-  await prisma.comment.delete({ where: { id: commentId } });
-
-  return;
+  return await CommentRepo.deleteComment(commentId);
 }
