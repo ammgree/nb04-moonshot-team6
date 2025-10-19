@@ -10,13 +10,15 @@ const router = express.Router();
 // 회원가입 라우터
 router
   .route('/auth/register')
-  .post(upload.single('files'), userController.createUserController);
+  .post(
+    //upload.single('files'), 
+    userController.createUserController);
 
 // 유저 조회, 수정 라우터
 router
   .route('/users/me')
-  .get(auth.verifyAccessToken, UserService.getUser)
-  .patch(auth.verifyAccessToken, UserService.updateUser);
+  .get(auth.verifyAccessToken, userController.getUserController)
+  .patch(auth.verifyAccessToken, userController.updateUserController);
 
 // 프로젝트 조회 라우터
 router

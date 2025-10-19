@@ -1,6 +1,8 @@
 import upload from '../middlewares/upload.middleware.js';
 import express from 'express';
-import { uploadBuffer } from '../services/upload.service.js';
+import { uploadBuffer, 
+  //deleteFileFromCloudinary 
+  } from '../services/upload.service.js';
 
 const router = express.Router();
 
@@ -22,5 +24,17 @@ router.post('/files', upload.array('files'), async(req, res) => {
     res.status(500).json({ message: '이미지 업로드 중 오류가 발생했습니다.' });
   }
 });
+
+// // 이미지 삭제 라우터
+// router.delete('/files/:publicId', async(req, res) => {
+//   try {
+//     const { publicId } = req.params;
+//     await deleteFileFromCloudinary(publicId);
+//     res.status(204).send();
+//   } catch (error) {
+//     console.error('DELETE /files/:publicId Error:', error);
+//     res.status(500).json({ message: '이미지 삭제 중 오류가 발생했습니다.' });
+//   }
+// });
 
 export default router;

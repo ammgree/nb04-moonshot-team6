@@ -1,4 +1,4 @@
-import * as service from "../services/user.service.js";
+import service from "../services/user.service.js";
 import type { Request, Response } from "express";
 
 export const getUserProjectsController = async (

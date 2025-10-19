@@ -6,7 +6,6 @@ import prisma from '../configs/prisma.js';
 import type { Request, Response } from 'express';
 import express from 'express';
 import createError  from 'http-errors';
-import { uploadBuffer } from '../services/upload.service.js';
 
 const app = express();
 app.use(express.json());
@@ -27,56 +26,61 @@ const createUsers = async(
   }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(userData.password, salt);
-  const user = await userRepo.createUser({
+  const user = await userRepo.createUserRepository({
     email: userData.email,
     name: userData.name,
     password: hashedPassword,
-    profileImage: userData.profileImage,
+    profileImage: userData.profileImage ?? null,
   });
   return user;
 };
 
 // 유저 조회
-const getUser = async(req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
+const getUser = async(userId: number) => {
+  const user = await userRepo.getUserRepository(userId);
+  if (!user) {
+    throw new createError.NotFound('유저를 찾을 수 없습니다.');
   }
-  const userId = req.user.id;
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
-  res.status(200).json(user);
+  return user;
 };
 
-// 유저 수정
-const updateUser = async(req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).send({ errorMessage: '토큰이 만료되었습니다.' });
-  }
-  const userId = req.user.id;
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+// 유저 수정 - 프로필 이미지 수정과 비밀번호 변경은 별개로 진행되도록 처리함
+const updateUser = async(
+  userId: number, 
+  data: { 
+    email: string,
+    name: string, 
+    currentPassword?: string,
+    newPassword?: string,
+    profileImage?: string | null }) => {
+  // 비밀번호 변경
+    const user = await userRepo.getUserRepository(userId);
   if (!user) {
-    return res.status(404).send({ errorMessage: '유저를 찾을 수 없습니다.' });
+    throw new createError.NotFound('유저를 찾을 수 없습니다.');
   }
-  const isMatch = await auth.verifyPassword(req.body.currentPassword, user.password!);
+  if (data.currentPassword && data.newPassword) {
+  const isMatch = await auth.verifyPassword(data.currentPassword, user.password!);
   if (!isMatch) {
-    throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
+    throw new createError.Unauthorized('이메일 또는 비밀번호가 잘못되었습니다.');
   }
-  const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: { email: req.body.email,
-            name: req.body.name,
-            password: req.body.newPassword ? await bcrypt.hash(req.body.newPassword, 10) : user.password,
-            profileImage: req.body.profileImage ? req.body.profileImage : user.profileImage
-          },
+  const salt = await bcrypt.genSalt(10);
+  const hashedNewPassword = await bcrypt.hash(data.newPassword, salt);
+  data.newPassword = hashedNewPassword;
+  }
+  // 프로필 이미지 수정
+  const updatedUser = await userRepo.updateUserRepository(userId, {
+    email: data.email ?? user.email,
+    name: data.name ?? user.name,
+    password: data.newPassword ? data.newPassword : (user as any).password,
+    profileImage:
+      data.profileImage === undefined ? user.profileImage : data.profileImage,
   });
-  res.status(200).json(updatedUser);
+
+  return updatedUser;
 };
 
 // 유저 프로젝트 조회
-export const getUserProjects = async (
+const getUserProjects = async (
   userId: number,
   sort: "latest" | "name" = "latest"
 ) => {

@@ -15,7 +15,7 @@ app.use(cors({
   allowedHeaders: ['Authorization', 'Content-Type'],
 }));
 
-// 회원가입
+// 유저 관련 라우터
 app.use('/', userRouter);
 
 // 로그인
