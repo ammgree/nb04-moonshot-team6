@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import passport from 'passport';
 import commentRouter from './routes/comment.route.js';
 import { PrismaClient } from '@prisma/client';
-import { errorHandler } from 'middlewares/error.middleware.js';
+import { errorHandler } from './middlewares/error.middleware.js';
 const router = express.Router();
 
 dotenv.config();
