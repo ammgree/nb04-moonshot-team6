@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import * as memberService from "../services/member.service.js";
 import { randomUUID } from "crypto";
-import { AppError, getErrorMessage } from "utils/error.js";
+import { AppError, getErrorMessage } from "../utils/error.js";
 
 // 프로젝트 멤버 조회
 export async function getMembers(req: Request, res: Response) {
@@ -74,10 +74,10 @@ export async function acceptInvitation(req: Request, res: Response) {
 }
 
 // 초대 취소
-export async function deleteInvitation(req: Request, res: Response) {
+export async function cancelInvitation(req: Request, res: Response) {
   try {
     const invitationId = req.params.invitationId!;
-    await memberService.deleteInvitation(invitationId);
+    await memberService.cancelInvitation(invitationId);
     res.status(200).json({ message: "초대가 취소되었습니다." });
   } catch (err) {
     if (err instanceof AppError) {

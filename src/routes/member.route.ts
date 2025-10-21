@@ -7,6 +7,6 @@ router
   .delete("/projects/:projectId/users/:userId", memberController.deleteMember)
   .post("/projects/:projectId/invitations", memberController.inviteMember)
   .post("/invitations/:invitationId/accept", memberController.acceptInvitation)
-  .delete("/invitations/:invitationId", memberController.deleteInvitation);
+  .delete("/invitations/:invitationId", memberController.cancelInvitation);
 
 export default router;

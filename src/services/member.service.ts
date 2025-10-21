@@ -1,6 +1,6 @@
 import type { InvitationStatus } from "@prisma/client";
 import * as memberRepo from "../repositories/member.repository.js";
-import { BadRequestError, NotFoundError } from "utils/error.js";
+import { BadRequestError, NotFoundError } from "../utils/error.js";
 
 // 프로젝트 멤버 조회
 export async function getMembers(
@@ -32,6 +32,7 @@ export async function getMembers(
 // 프로젝트에서 유저 제외
 export async function deleteMember(projectId: number, userId: number) {
   await memberRepo.deleteMember(projectId, userId);
+  await memberRepo.updateStatus(projectId);
 }
 
 // 프로젝트에 멤버 초대
@@ -69,7 +70,7 @@ export async function acceptInvitation(invitationId: string, userId: number) {
 }
 
 // 초대 취소
-export async function deleteInvitation(invitationId: string) {
+export async function cancelInvitation(invitationId: string) {
   const invitation = await memberRepo.findInvitationById(invitationId);
   if (!invitation) {
     throw new NotFoundError("유효하지 않은 초대입니다.");
@@ -77,5 +78,5 @@ export async function deleteInvitation(invitationId: string) {
   if (invitation.status !== "PENDING") {
     throw new BadRequestError("이미 처리된 초대입니다.");
   }
-  await memberRepo.deleteInvitation(invitationId);
+  await memberRepo.cancelInvitation(invitationId);
 }
