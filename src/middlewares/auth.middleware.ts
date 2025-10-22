@@ -2,10 +2,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { expressjwt } from 'express-jwt';
 import express from 'express';
+import dotenv from 'dotenv';
 
 const app = express();
 app.use(express.json());
-
+dotenv.config();
 
 // 비밀번호 검증 함수
 async function verifyPassword(

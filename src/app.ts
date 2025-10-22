@@ -2,6 +2,7 @@ import express from 'express';
 import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 import uploadRouter from './routes/upload.route.js';
+import dashboardRouter from './routes/dashboard.route.js';
 import cors from 'cors';
 
 const app = express();
@@ -23,6 +24,9 @@ app.use('/', authRouter);
 
 // 파일 업로드
 app.use('/', uploadRouter);
+
+// 대시보드 (칸반, 캘린더)
+app.use('/', dashboardRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
