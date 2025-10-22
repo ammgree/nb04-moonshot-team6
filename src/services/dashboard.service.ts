@@ -68,7 +68,7 @@ if (keyword) {
         profileImage: true
       }
     },
-      tags: true,
+      tags:  true ,
       files: {
         select: { id: true, url: true },
       },
@@ -101,6 +101,7 @@ if (keyword) {
       createdAt: t.createdAt,
       updatedAt: t.updatedAt,
   }));
+  console.log(result);
   return result;
 };
 

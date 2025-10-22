@@ -140,9 +140,7 @@ const result = await prisma.$queryRaw<
     ORDER BY p.${Prisma.raw(orderBy === 'name' ? '"name" ASC' : '"createdAt" DESC')}
     LIMIT ${limit} OFFSET ${offset}
   `;
-  console.log(result);
     return {data:result, total: result.length};
-
 };
 
 
