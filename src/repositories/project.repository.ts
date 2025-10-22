@@ -21,12 +21,17 @@ export const createProjectRepo = (
 
 export const getUserProjectsRepo = (
   userId: number,
-  sort: "latest" | "name"
+  limit: number,
+  offset: number,
+  orderBy: "name" | "createdAt",
+  order: "asc" | "desc"
 ) => {
   return prisma.project.findMany({
     where: { members: { some: { userId } } },
     include: { members: true, tasks: true },
-    orderBy: sort === "latest" ? { createdAt: "desc" } : { name: "asc" },
+    orderBy: { [orderBy]: order },
+    take: limit,
+    skip: offset,
   });
 };
 

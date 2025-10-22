@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from 'express';
 import passport from "passport";
 import {
   register,
@@ -7,10 +7,7 @@ import {
 } from "../controllers/auth.controller.js";
 import authService from '../services/auth.service.js';
 
-const router = Router();
-
-// 회원가입
-router.post("/register" , register);
+const router = express.Router();
 
 // 토큰 갱신
 router.post("/refresh", refreshToken);
@@ -57,6 +54,7 @@ router.get(
     }
   }
 );
+
 
 
 export default router;

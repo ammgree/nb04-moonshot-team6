@@ -1,6 +1,7 @@
-import bcrypt from "bcrypt";
+import prisma from '../configs/prisma.js';
+import express from 'express';
+import auth from '../middlewares/auth.middleware.js';
 import ms from "ms";
-import prisma from "../configs/prisma.js";
 import userRepo from "../repositories/user.repository.js";
 import authRepo from "../repositories/auth.repository.js";
 import auth_middleware from '../middlewares/auth.middleware.js';
@@ -14,58 +15,46 @@ import {
 } from "../utils/jwt.js";
 import { REFRESH_TOKEN_EXPIRES_DAYS , ACCESS_TOKEN_EXPIRES_IN, GOOGLE_USERINFO_URL } from "../utils/constants.js";
 
-export default {
-  async register(userData: {email: string, password : string, name: string, profileImage: string;}) {
-    const existing = await userRepo.findByEmail(userData.email);
-    if (existing) {
-      throw SignUpError
-    }
+const app = express();
+app.use(express.json());
 
-    const hashedPassword = await auth_middleware.hashPassword(userData.password);
-    
-    const user = await userRepo.create({
-        ...userData,
-        password: hashedPassword
-    });
+// 로그인 서비스
+const getLogin = async(email: string, password: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (!user) {
+    throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
+  }
+  const isMatch = await auth.verifyPassword(password, user.password!);
+  if (!isMatch) {
+    throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
+  }
+  const accessToken = auth.createToken(user);
+  const refreshToken = auth.createToken(user, 'refresh');
 
-    return {
-      user
-    };
-  },
+  // 기존 refreshToken 모두 폐기
+  await prisma.refreshToken.updateMany({
+  where: { userId: user.id },
+  data: { revoked: true } 
+  });
 
-  async login(email: string, password: string) {
-
-    const user = await prisma.user.findUnique({
-      where: { email }, 
-    });
-
-    if (!user) {
-      throw new UserNotFoundError();
-    }
-
-    await auth_middleware.verifyPassword(password, user.password!);
-
-    const accessToken = signAccessToken({ userId: user.id });
-    const refreshToken = signRefreshToken({ userId: user.id });
-
-    await authRepo.revokeById(user.id);
-
-    const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
-
-    await authRepo.createRefreshToken({
+  // DB에 새로 발급한 refreshToken 저장
+  await prisma.refreshToken.create({
+    data: { 
+      userId: user.id, 
       token: refreshToken,
-      userId: user.id,
-      expiresAt,
-    });
+      expiresAt: new Date(Date.now() + 14*24*60*60*1000) // 2주
+    } 
+  });
+  return { accessToken, refreshToken };
+};
 
-    return {
-      accessToken,
-      refreshToken,
-    };
-  },
+
 
   // 구글 로그인
-  async signInWithGoogle(profile: { email: string; googleId: string; name?: string; picture?: string }, meta?: { ip?: string; device?: string }) {
+export default { getLogin,
+    async signInWithGoogle(profile: { email: string; googleId: string; name?: string; picture?: string }, meta?: { ip?: string; device?: string }) {
     let user = await userRepo.findByGoogleId(profile.googleId);
     if (!user) {
         user = await userRepo.create({

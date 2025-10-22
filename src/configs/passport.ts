@@ -1,6 +1,5 @@
 import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import bcrypt from "bcryptjs";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import prisma from "./prisma.js"; // 값으로 import
 
@@ -12,7 +11,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, async (payload, done) => {
     try {
-      const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+      const user = await prisma.user.findUnique({ where: { id: payload.id } });
       if (!user) return done(null, false); // 유저 없으면 인증 실패
       return done(null, user); // 인증 성공, req.user에 user 할당
     } catch (err) {

@@ -1,5 +1,5 @@
 import express from "express";
-// import passport from "../lib/passport/...";
+import passport from "passport"
 
 import {
   createProjectController,
@@ -12,15 +12,40 @@ import {
 const router = express.Router();
 
 // 프로젝트 상세 조회
-router.get("/projects/:projectId", getProjectByIdController);
+router
+  .route("/projects/:projectId")
+  .get( 
+    passport.authenticate("jwt", { session: false }),
+    getProjectByIdController
+  );
 
 // 프로젝트 목록 조회
-router.get("/users/me/projects", getUserProjectsController);
+router
+  .route("/users/me/projects")
+  .get(
+    passport.authenticate("jwt", { session: false }),
+    getUserProjectsController
+  );
 
-router.post("/projects", createProjectController);
+router
+  .route("/projects")
+  .post(
+    passport.authenticate("jwt", { session: false }),
+    createProjectController
+  );
 
-router.patch("/projects/:projectId", updateProjectController);
+router
+  .route("/projects/:projectId")
+  .patch(
+    passport.authenticate("jwt", { session: false }),
+    updateProjectController
+  );
 
-router.delete("/projects/:projectId", deleteProjectController);
+router
+  .route("/projects/:projectId")
+  .delete(
+    passport.authenticate("jwt", { session: false }),
+    deleteProjectController
+  );
 
 export default router;

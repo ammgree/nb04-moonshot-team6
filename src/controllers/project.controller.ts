@@ -1,6 +1,6 @@
+import type { Request, Response } from "express";
 import * as service from "../services/project.service.js";
 import { AppError, getErrorMessage } from "../utils/error.js";
-import type { Request, Response } from "express";
 
 // 프로젝트 생성
 export const createProjectController = async (req: Request, res: Response) => {
@@ -25,8 +25,13 @@ export const getUserProjectsController = async (
 ) => {
   try {
     const userId = Number(req.user?.id);
-    const sort = req.query.sort === "name" ? "name" : "latest";
-    const projects = await service.getUserProjects(userId, sort);
+    const limit = Number(req.query.limit) || 10;
+    const page = Number(req.query.page) || 1;
+    const offset = (page - 1) * limit;
+    const orderByRaw = req.query.order_by === "name" ? "name" : "createdAt";
+    const orderBy = req.query.order_by === "created_at" ? "createdAt" : orderByRaw;
+    const order = req.query.order === "asc" ? "asc" : "desc";
+    const projects = await service.getUserProjects(userId, limit, offset, orderBy, order);
     res.status(200).json(projects);
   } catch (err) {
     if (err instanceof AppError) {

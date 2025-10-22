@@ -42,7 +42,7 @@ export const createProject = async (
 // -------------------------
 // 프로젝트 목록 조회
 // -------------------------
-export const getUserProjects = async (
+/*export const getUserProjects = async (
   userId: number,
   sort: "latest" | "name" = "latest"
 ) => {
@@ -67,6 +67,32 @@ export const getUserProjects = async (
     updatedAt: p.updatedAt,
   }));
 
+  return {
+    data,
+    total: data.length,
+  };
+};*/
+
+export const getUserProjects = async (
+  userId: number,
+  limit: number = 10,
+  offset: number = 0,
+  orderBy: "name" | "createdAt" = "createdAt",
+  order: "asc" | "desc" = "desc",
+) => {
+  const projects = await repo.getUserProjectsRepo(userId, limit, offset, orderBy, order);
+  const data = projects.map((p) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description ?? "",
+    memberCount: p.members.length,
+    todoCount: p.tasks?.filter((t) => t.status === "TODO").length ?? 0,
+    inProgressCount:
+      p.tasks?.filter((t) => t.status === "IN_PROGRESS").length ?? 0,
+    doneCount: p.tasks?.filter((t) => t.status === "DONE").length ?? 0,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  }));
   return {
     data,
     total: data.length,

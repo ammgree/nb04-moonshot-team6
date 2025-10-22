@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import authService from '../services/auth.service.js';
+import userService from '../services/user.service.js';
 import { OAuth2Client } from 'google-auth-library';
 import { GOOGLE_CLIENT_ID } from '../utils/constants.js';
 
@@ -11,7 +12,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     const {email, password, name, profileImage} = req.body
 
     // 서비스 레이어 호출
-    const result = await authService.register({
+    const result = await userService.createUsers({
       email,
       password,
       name,
@@ -34,7 +35,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     const userAgent = req.headers['user-agent'];
 
-    const result = await authService.login(email, password);
+    const result = await authService.getLogin(email, password);
 
     res.status(200).json({
       accessToken: result.accessToken,
