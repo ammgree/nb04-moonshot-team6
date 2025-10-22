@@ -1,5 +1,5 @@
 import prisma from "../configs/prisma.js";
-import bcrypt from "bcrypt";
+import type { User } from "@prisma/client";
 
 // 회원가입 레포지토리
 export const createUserRepository = (
@@ -37,8 +37,16 @@ export const updateUserRepository = async (
   });
 };
 
+
+
+
 export default {
   createUserRepository,
   getUserRepository,
   updateUserRepository,
+    findByEmail: (email: string) => prisma.user.findUnique({ where: { email } }),
+    findById: (id: number) => prisma.user.findUnique({ where: { id } }),
+    findByGoogleId: (googleId: string) => prisma.user.findUnique({ where: { googleId } }),
+    create: (data: Partial<User>) => prisma.user.create({ data: data as any }),
+    update: (id: number, data: Partial<User>) => prisma.user.update({ where: { id }, data: data as any }),
 };

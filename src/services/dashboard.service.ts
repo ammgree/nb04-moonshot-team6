@@ -105,53 +105,6 @@ if (keyword) {
   return result;
 };
 
-
-// // 대쉬보드 담당자 조회
-// const getAssigneeData = async (
-//   userId: number,
-//   assignee_id?: number,
-//   ) => {
-
-// const assigneeId: number = assignee_id ? assignee_id : userId;
-
-// // 담당자 정보 조회
-// const allMembers = await prisma.projectMember.findMany({
-//   where: { project: { members: { some: { userId: assigneeId } } } },
-//   include: { user: { select: { id: true, name: true } } },
-// });
-
-// console.log('Assignee ID:', assigneeId);
-// console.log('All Members Before Deduplication:', allMembers);
-
-// //console.log(allMembers);
-
-// // // 중복 제거를 위한 Set 사용
-// // const memberSet = new Set<{ id: number; name: string }>();
-// // allMembers.forEach((member) => {
-// //   memberSet.add({ id: member.user.id, name: member.user.name! });
-// // });
-
-// const ids = new Set<number>();
-// const memberSet: { id: number; name: string }[] = [];
-// allMembers.forEach((member) => {
-//   if (!ids.has(member.user.id)) {
-//     ids.add(member.user.id);
-//     memberSet.push({ id: member.user.id, name: member.user.name! });
-//   }
-// });
-
-// //console.log(memberSet);
-
-
-
-
-//   console.log('All Members:', allMembers);
-//   return allMembers;
-
-// };
-
-
-
 export default {
   getDashboardData,
 };
