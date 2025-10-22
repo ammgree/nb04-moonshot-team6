@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { TaskService } from "../services/task.service.js";
+import { AppError, getErrorMessage } from "../utils/error.js";
 
 export const TaskController = {
   createTask: async (req: Request, res: Response, next: NextFunction) => {
@@ -14,10 +15,12 @@ export const TaskController = {
       );
 
       res.status(201).json(newTask);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({ message: "서버 오류" });
+    } catch (err) {
+      if (err instanceof AppError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: getErrorMessage(err) });
+      }
     }
   },
 
@@ -44,10 +47,12 @@ export const TaskController = {
       const task = await TaskService.getTaskId(taskId, userId);
 
       res.status(200).json(task);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({ message: "서버 오류" });
+    } catch (err) {
+      if (err instanceof AppError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: getErrorMessage(err) });
+      }
     }
   },
 

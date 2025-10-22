@@ -1,12 +1,12 @@
 import type {
   CreateTaskData,
   GetTasksQuery,
-  TaskWithRelations,
   UpdateTaskData,
-  UpdateTaskPrismaInput,
 } from "../types/task.js";
 import { OrderBy, Order } from "../types/task.js";
 import { TaskRepository } from "../repositories/task.repository.js";
+import { TaskToResponse, UpdateTaskDataToPrisma } from "../utils/task.utils.js";
+import { mapFrontendToBackendStatus } from "../utils/statusMapper.js";
 
 export const TaskService = {
   createTask: async (
@@ -23,12 +23,19 @@ export const TaskService = {
 
     const task = await TaskRepository.createTask({
       title: body.title,
-      content: body.content,
+      content: body.description,
       startAt,
       endAt,
       projectId,
-      assigneeId: assigneeId,
-      tags: body.tags ?? [],
+      assigneeId,
+      tags: (body.tags ?? []).map((tagName) => ({
+        tag: {
+          connectOrCreate: {
+            where: { name: tagName },
+            create: { name: tagName },
+          },
+        },
+      })),
     });
 
     return TaskToResponse(task);
@@ -48,9 +55,13 @@ export const TaskService = {
     const limit = Number(query.limit ?? 10);
     const order_by = query.order_by ?? OrderBy.created_at;
     const order = query.order ?? Order.desc;
+    const status = query.status
+      ? mapFrontendToBackendStatus(query.status)
+      : undefined;
 
     const { data: tasks, total } = await TaskRepository.getTasks(projectId, {
       ...query,
+      status,
       page,
       limit,
       order_by,
@@ -116,74 +127,3 @@ export const TaskService = {
     await TaskRepository.deleteTask(taskId);
   },
 };
-
-function formatDateToParts(date: Date) {
-  return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-  };
-}
-
-function TaskToResponse(task: TaskWithRelations) {
-  const {
-    year: startYear,
-    month: startMonth,
-    day: startDay,
-  } = formatDateToParts(task.startAt!);
-  const {
-    year: endYear,
-    month: endMonth,
-    day: endDay,
-  } = formatDateToParts(task.endAt!);
-
-  return {
-    id: task.id,
-    projectId: task.projectId,
-    title: task.title,
-    content: task.content,
-    startYear,
-    startMonth,
-    startDay,
-    endYear,
-    endMonth,
-    endDay,
-    status: task.status,
-    assignee: task.assigneeId,
-    tags: task.tags,
-    attachments: task.files,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
-  };
-}
-
-function UpdateTaskDataToPrisma(data: UpdateTaskData): UpdateTaskPrismaInput {
-  const input: UpdateTaskPrismaInput = {};
-
-  if (data.title !== undefined) input.title = data.title;
-  if (data.status !== undefined) input.status = data.status;
-  if (data.assigneeId !== undefined) input.assigneeId = data.assigneeId;
-  if (data.tags !== undefined) input.tags = data.tags;
-
-  if (
-    data.startYear !== undefined &&
-    data.startMonth !== undefined &&
-    data.startDay !== undefined
-  ) {
-    input.startAt = new Date(
-      data.startYear,
-      data.startMonth - 1,
-      data.startDay
-    );
-  }
-
-  if (
-    data.endYear !== undefined &&
-    data.endMonth !== undefined &&
-    data.endDay !== undefined
-  ) {
-    input.endAt = new Date(data.endYear, data.endMonth - 1, data.endDay);
-  }
-
-  return input;
-}

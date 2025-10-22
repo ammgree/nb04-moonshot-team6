@@ -54,11 +54,12 @@ export const SubtaskController = {
     try {
       const subtaskId = Number(req.params.subtaskId);
 
-      const { title } = req.body;
+      const { title, status } = req.body;
 
       const updateSubtask = await SubtaskService.updateSubtask(
         subtaskId,
-        title
+        title,
+        status
       );
 
       return res.status(200).json(updateSubtask);

@@ -1,34 +1,30 @@
 import express from "express";
 import { TaskController } from "../controllers/task.controller.js";
-import { SubtaskController } from "../controllers/subtask.controller.js";
 import auth from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 router.post(
-  "/:projectId/tasks",
+  "/projects/:projectId/tasks",
   auth.verifyAccessToken,
   TaskController.createTask
 );
 router.get(
-  "/:projectId/tasks",
+  "/projects/:projectId/tasks",
   auth.verifyAccessToken,
   TaskController.getTasks
 );
 
-router.get("/:taskId", auth.verifyAccessToken, TaskController.getTaskId);
-router.patch("/:taskId", auth.verifyAccessToken, TaskController.updatedTask);
-router.delete("/:taskId", auth.verifyAccessToken, TaskController.deleteTask);
-
-router.post(
-  "/:taskId/subtasks",
+router.get("/tasks/:taskId", auth.verifyAccessToken, TaskController.getTaskId);
+router.patch(
+  "/tasks/:taskId",
   auth.verifyAccessToken,
-  SubtaskController.createSubtask
+  TaskController.updatedTask
 );
-router.get(
-  "/:taskId/subtasks",
+router.delete(
+  "/tasks/:taskId",
   auth.verifyAccessToken,
-  SubtaskController.getSubtask
+  TaskController.deleteTask
 );
 
 export default router;

@@ -13,7 +13,7 @@ export enum OrderBy {
 
 export interface CreateTaskData {
   title: string;
-  content: string;
+  description: string;
   startYear: number;
   startMonth: number;
   startDay: number;
@@ -30,14 +30,21 @@ export interface CreateTaskPrismaInput {
   startAt: Date;
   endAt: Date;
   projectId: number;
-  assigneeId: number;
-  tags?: string[];
+  assigneeId?: number;
+  tags?: {
+    tag: {
+      connectOrCreate: {
+        where: { name: string };
+        create: { name: string };
+      };
+    };
+  }[];
 }
 
 export interface GetTasksQuery {
   page?: number;
   limit?: number;
-  status?: TaskStatus;
+  status?: TaskStatus | undefined;
   assignee?: number;
   keyword?: string;
   order?: Order;
@@ -46,13 +53,24 @@ export interface GetTasksQuery {
 
 export interface TaskWithRelations extends Task {
   files: File[];
-  tags: string[];
+  tags: {
+    tag: {
+      id: number;
+      name: string;
+    };
+  }[];
   content: string; // 'description' 대응
-  assigneeId: number | null;
+  assignee: {
+    id: number;
+    name: string | null;
+    email: string;
+    profileImage: string | null;
+  } | null;
 }
 
 export interface UpdateTaskData {
   title?: string;
+  description?: string;
   startYear?: number;
   startMonth?: number;
   startDay?: number;

@@ -6,6 +6,7 @@ import type { Express } from "express";
 import dotenv from "dotenv";
 import taskRouter from "./routes/task.router.js";
 import subtaskRouter from "./routes/subtask.router.js";
+import projectRouter from "./routes/project.route.js";
 
 dotenv.config();
 
@@ -28,9 +29,10 @@ app.use("/", userRouter);
 // 로그인
 app.use("/", authRouter);
 
-app.use("/projects", taskRouter);
-app.use("/tasks", taskRouter);
-app.use("/subtasks", subtaskRouter);
+app.use("/", projectRouter);
+
+app.use("/", taskRouter);
+app.use("/", subtaskRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

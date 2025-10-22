@@ -4,18 +4,29 @@ import express from "express";
 
 const router = express.Router();
 
+router.post(
+  "/tasks/:taskId/subtasks",
+  auth.verifyAccessToken,
+  SubtaskController.createSubtask
+);
 router.get(
-  "/:subtaskId",
+  "/tasks/:taskId/subtasks",
+  auth.verifyAccessToken,
+  SubtaskController.getSubtask
+);
+
+router.get(
+  "/subtasks/:subtaskId",
   auth.verifyAccessToken,
   SubtaskController.getSubtaskId
 );
 router.patch(
-  "/:subtaskId",
+  "/subtasks/:subtaskId",
   auth.verifyAccessToken,
   SubtaskController.updateSubtask
 );
 router.delete(
-  "/:subtaskId",
+  "/subtasks/:subtaskId",
   auth.verifyAccessToken,
   SubtaskController.deleteSubtask
 );

@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { SubtaskStatus } from "@prisma/client";
+import prisma from "../configs/prisma.js";
 
 export const SubtaskRepository = {
   createSubtask: async (taskId: number, title: string) => {
@@ -34,11 +33,16 @@ export const SubtaskRepository = {
     });
   },
 
-  updateSubtask: async (subtaskId: number, title: string) => {
+  updateSubtask: async (
+    subtaskId: number,
+    title: string,
+    status: SubtaskStatus
+  ) => {
     return await prisma.subtask.update({
       where: { id: subtaskId },
       data: {
         title,
+        status,
       },
     });
   },
