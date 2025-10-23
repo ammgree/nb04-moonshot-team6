@@ -12,6 +12,7 @@ export class AppError extends Error {
     }
   }
 }
+
 export class SignUpError extends AppError {
   constructor(message: string = "이미 가입한 이메일입니다.") {
     super(message, 400);
@@ -30,8 +31,10 @@ export class UnauthorizedError extends AppError {
 }
 
 export class UserNotFoundError extends AppError {
-  constructor(message: string = "존재하지 않거나 비밀번호가 일치하지 않습니다") {
-    super(message , 404);
+  constructor(
+    message: string = "존재하지 않거나 비밀번호가 일치하지 않습니다"
+  ) {
+    super(message, 404);
   }
 }
 

@@ -1,27 +1,25 @@
-
 import * as userRepo from "../repositories/user.repository.js";
-import auth from '../middlewares/auth.middleware.js';
-import bcrypt from 'bcrypt';
-import prisma from '../configs/prisma.js';
-import createError  from 'http-errors';
-import express from 'express';
+import auth from "../middlewares/auth.middleware.js";
+import bcrypt from "bcrypt";
+import prisma from "../configs/prisma.js";
+import createError from "http-errors";
+import express from "express";
 
 const app = express();
 app.use(express.json());
 
 // 회원가입 서비스
-const createUsers = async(
-  userData:{
-    email:string, 
-    name:string, 
-    password:string,
-    profileImage: string
-  }) => {
+const createUsers = async (userData: {
+  email: string;
+  name: string;
+  password: string;
+  profileImage: string;
+}) => {
   const existUser = await prisma.user.findUnique({
-    where: { email: userData.email }
+    where: { email: userData.email },
   });
   if (existUser) {
-    throw new createError .Conflict('이미 가입된 이메일입니다.');
+    throw new createError.Conflict("이미 가입된 이메일입니다.");
   }
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(userData.password, salt);
@@ -35,37 +33,43 @@ const createUsers = async(
 };
 
 // 유저 조회
-const getUser = async(userId: number) => {
+const getUser = async (userId: number) => {
   const user = await userRepo.getUserRepository(userId);
   if (!user) {
-    throw new createError.NotFound('유저를 찾을 수 없습니다.');
+    throw new createError.NotFound("유저를 찾을 수 없습니다.");
   }
   return user;
 };
 
 // 유저 수정 - 프로필 이미지 수정과 비밀번호 변경은 별개로 진행되도록 처리함
-const updateUser = async(
-  userId: number, 
-  data: { 
-    email: string,
-    name: string, 
-    currentPassword?: string,
-    newPassword?: string,
-    profileImage?: string | null }) => {
-
-      // 비밀번호 변경
-    const user = await userRepo.getUserRepository(userId);
+const updateUser = async (
+  userId: number,
+  data: {
+    email: string;
+    name: string;
+    currentPassword?: string;
+    newPassword?: string;
+    profileImage?: string | null;
+  }
+) => {
+  // 비밀번호 변경
+  const user = await userRepo.getUserRepository(userId);
   if (!user) {
-    throw new createError.NotFound('유저를 찾을 수 없습니다.');
+    throw new createError.NotFound("유저를 찾을 수 없습니다.");
   }
   if (data.currentPassword && data.newPassword) {
-  const isMatch = await auth.verifyPassword(data.currentPassword, user.password!);
-  if (!isMatch) {
-    throw new createError.Unauthorized('이메일 또는 비밀번호가 잘못되었습니다.');
-  }
-  const salt = await bcrypt.genSalt(10);
-  const hashedNewPassword = await bcrypt.hash(data.newPassword, salt);
-  data.newPassword = hashedNewPassword;
+    const isMatch = await auth.verifyPassword(
+      data.currentPassword,
+      user.password!
+    );
+    if (!isMatch) {
+      throw new createError.Unauthorized(
+        "이메일 또는 비밀번호가 잘못되었습니다."
+      );
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedNewPassword = await bcrypt.hash(data.newPassword, salt);
+    data.newPassword = hashedNewPassword;
   }
   // 프로필 이미지 수정
   const updatedUser = await userRepo.updateUserRepository(userId, {
@@ -83,5 +87,4 @@ export default {
   createUsers,
   getUser,
   updateUser,
-}
-
+};

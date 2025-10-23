@@ -1,4 +1,4 @@
-import service from "../services/user.service.js";;
+import service from "../services/user.service.js";
 import type { Request, Response } from "express";
 import express from "express";
 
@@ -6,10 +6,7 @@ const app = express();
 app.use(express.json());
 
 // 회원가입 컨트롤러
-const createUserController = async (
-  req: Request,
-  res: Response
-) => {
+const createUserController = async (req: Request, res: Response) => {
   try {
     const user = await service.createUsers({ ...req.body });
     res.status(201).json(user);
@@ -19,10 +16,7 @@ const createUserController = async (
 };
 
 // 유저 조회 컨트롤러
-const getUserController = async (
-  req: Request,
-  res: Response
-) => {
+const getUserController = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.user?.id);
     const user = await service.getUser(userId);
@@ -33,10 +27,7 @@ const getUserController = async (
 };
 
 // 유저 수정 컨트롤러
-const updateUserController = async (
-  req: Request,
-  res: Response
-) => {
+const updateUserController = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.user?.id);
     const updatedUser = await service.updateUser(userId, req.body);

@@ -19,6 +19,7 @@ export const createProjectController = async (req: Request, res: Response) => {
 };
 
 // 프로젝트 목록 조회
+
 export const getUserProjectsController = async (
   req: Request,
   res: Response
@@ -29,9 +30,16 @@ export const getUserProjectsController = async (
     const page = Number(req.query.page) || 1;
     const offset = (page - 1) * limit;
     const orderByRaw = req.query.order_by === "name" ? "name" : "createdAt";
-    const orderBy = req.query.order_by === "created_at" ? "createdAt" : orderByRaw;
+    const orderBy =
+      req.query.order_by === "created_at" ? "createdAt" : orderByRaw;
     const order = req.query.order === "asc" ? "asc" : "desc";
-    const projects = await service.getUserProjects(userId, limit, offset, orderBy, order);
+    const projects = await service.getUserProjects(
+      userId,
+      limit,
+      offset,
+      orderBy,
+      order
+    );
     res.status(200).json(projects);
   } catch (err) {
     if (err instanceof AppError) {
@@ -90,4 +98,3 @@ export const deleteProjectController = async (req: Request, res: Response) => {
     }
   }
 };
-

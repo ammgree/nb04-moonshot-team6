@@ -1,15 +1,19 @@
-import type { Request, Response, NextFunction } from 'express';
-import authService from '../services/auth.service.js';
-import userService from '../services/user.service.js';
-import { OAuth2Client } from 'google-auth-library';
-import { GOOGLE_CLIENT_ID } from '../utils/constants.js';
+import type { Request, Response, NextFunction } from "express";
+import authService from "../services/auth.service.js";
+import userService from "../services/user.service.js";
+import { OAuth2Client } from "google-auth-library";
+import { GOOGLE_CLIENT_ID } from "../utils/constants.js";
 
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 //회원가입
-export async function register(req: Request, res: Response, next: NextFunction)  {
-  try{
-    const {email, password, name, profileImage} = req.body
+export async function register(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const { email, password, name, profileImage } = req.body;
 
     // 서비스 레이어 호출
     const result = await userService.createUsers({
@@ -23,8 +27,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       success: true,
       data: result,
     });
-  }catch(err) {
-    next(err)
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -33,7 +37,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
 
-    const userAgent = req.headers['user-agent'];
+    const userAgent = req.headers["user-agent"];
 
     const result = await authService.getLogin(email, password);
 
@@ -47,11 +51,20 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 }
 
 // 토큰 갱신
-export async function refreshToken(req: Request, res: Response, next: NextFunction) {
+export async function refreshToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { refreshToken } = req.body;
     const result = await authService.refreshAccessToken(refreshToken);
-    res.status(200).json({ accessToken: result.accessToken, refreshToken: result.refreshToken });
+    res
+      .status(200)
+      .json({
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      });
   } catch (err) {
     next(err);
   }

@@ -1,11 +1,11 @@
-import express from 'express';
+import express from "express";
 import passport from "passport";
 import {
   register,
   login,
   refreshToken,
 } from "../controllers/auth.controller.js";
-import authService from '../services/auth.service.js';
+import authService from "../services/auth.service.js";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/refresh", refreshToken);
 
 // 로그인 라우터
-router.post('/login', login);
+router.post("/login", login);
 
 // 구글 로그인 시작
 router.get(
@@ -31,7 +31,12 @@ router.get(
         return res.status(400).json({ message: "Invalid Google profile data" });
       }
 
-      const profile: { email: string; googleId: string; name?: string; picture?: string } = {
+      const profile: {
+        email: string;
+        googleId: string;
+        name?: string;
+        picture?: string;
+      } = {
         email: req.user.email,
         googleId: req.user.googleId,
         ...(req.user.name ? { name: req.user.name } : {}),
@@ -40,9 +45,10 @@ router.get(
 
       const meta: { ip?: string; device?: string } = {
         ...(req.ip ? { ip: req.ip } : {}),
-        ...(req.headers["user-agent"] ? { device: req.headers["user-agent"] } : {}),
+        ...(req.headers["user-agent"]
+          ? { device: req.headers["user-agent"] }
+          : {}),
       };
-
 
       const result = await authService.signInWithGoogle(profile, meta);
 
@@ -54,7 +60,5 @@ router.get(
     }
   }
 );
-
-
 
 export default router;
