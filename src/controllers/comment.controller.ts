@@ -4,7 +4,7 @@ import type { NextFunction, Request, Response } from "express"
 // 할 일에 댓글 추가
 export async function createComment(req: Request, res: Response, next: NextFunction): Promise <void> {
   try {
-    const userId = req.user?.id;
+    const userId = Number(req.user?.id);
     const taskId = Number(req.params.taskId);
     const { content } = req.body;
 
@@ -23,7 +23,7 @@ export async function createComment(req: Request, res: Response, next: NextFunct
 // 할 일에 달린 댓글 조회
 export async function gettaskcomment(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = Number(req.user?.id);
     const taskId = Number(req.params.taskId);
     const page = Number(req.query.page);
     const limit = Number(req.query.limit);
@@ -43,7 +43,7 @@ export async function gettaskcomment(req: Request, res: Response, next: NextFunc
 // 댓글 조회
 export async function getComment(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = Number(req.user?.id);
     const taskId = Number(req.params.taskId);
 
     if (!userId) {
@@ -70,7 +70,7 @@ export async function getComment(req: Request, res: Response, next: NextFunction
 // 댓글 수정
 export async function patchComment(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = Number(req.user?.id);
     const taskId = Number(req.params.taskId);
     const commentId = Number(req.params.commentId);
     const { content } = req.body;
@@ -90,7 +90,7 @@ export async function patchComment(req: Request, res: Response, next: NextFuncti
 // 댓글 삭제
 export async function deleteComment(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = req.user?.id;
+    const userId = Number(req.user?.id);
     const taskId = Number(req.params.taskId)
     const commentId = Number(req.params.commentId);
 
