@@ -120,3 +120,10 @@ export async function cancelInvitation(invitationId: string) {
     },
   });
 }
+
+// userId로 유저 찾기
+export async function findUserById(userId: number) {
+  return await prisma.user.findUnique({
+    where: { id: userId },
+  });
+}
