@@ -30,6 +30,14 @@ export const TaskRepository = {
             })),
           },
         }),
+        ...(data.attachments && {
+          files: {
+            create: data.attachments.map((fileUrl: string) => ({
+              url: fileUrl,
+              filename: fileUrl.split("/").pop() || "unknown",
+            })),
+          },
+        }),
       },
       include: {
         assignee: true,
@@ -120,47 +128,96 @@ export const TaskRepository = {
   },
 
   updateTask: async (data: UpdateTaskPrismaInput, taskId: number) => {
-    const { tags, ...rest } = data;
+    // 1. data에서 tags, attachments, 나머지(rest)를 분리합니다.
+    //    (attachments의 기본값 = [] 를 제거해야 undefined 체크가 가능합니다)
+    const { tags, attachments, ...rest } = data;
+    console.log("repository:", attachments);
 
-    // tags가 없는 경우는 간단히 업데이트만 수행
-    if (tags === undefined) {
-      return await prisma.task.update({
-        where: { id: taskId },
-        data: rest,
-        include: {
-          assignee: {
-            select: { id: true, name: true, email: true, profileImage: true },
-          },
-          tags: { include: { tag: true } },
-          files: true,
-        },
-      });
-    }
-
-    // tags가 있는 경우, 트랜잭션으로 기존 태그 삭제 후 새로 생성
+    // 2. 트랜잭션 시작
     return await prisma.$transaction(async (tx) => {
-      // 1. 이 태스크와 연결된 모든 기존 TaskTag 기록을 삭제합니다.
-      await tx.taskTag.deleteMany({
-        where: { taskId: taskId },
-      });
+      // 3. 태그(Tags) 동기화 로직
+      //    tags 필드가 undefined가 아닐 때(즉, 클라이언트에서 수정 요청을 보냈을 때)만 실행
+      if (tags !== undefined) {
+        // 3-1. 기존 태그 연결(TaskTag)을 모두 삭제
+        await tx.taskTag.deleteMany({
+          where: { taskId },
+        });
 
-      // 2. 태스크의 다른 정보들을 업데이트하고, 새로운 태그들을 연결합니다.
+        // 3-2. 새로운 태그 리스트를 순회하며 upsert 및 재연결
+        for (const tagName of tags) {
+          // 3-3. 태그가 없으면 생성(create), 있으면 가져옴(upsert)
+          const tag = await tx.tag.upsert({
+            where: { name: tagName },
+            update: {},
+            create: { name: tagName },
+          });
+
+          // 3-4. Task와 Tag를 다시 연결
+          await tx.taskTag.create({
+            data: {
+              taskId,
+              tagId: tag.id,
+            },
+          });
+        }
+      }
+
+      // 4. 첨부파일(Attachments) 동기화 로직
+      //    attachments 필드가 undefined가 아닐 때만 실행
+      if (attachments !== undefined) {
+        // 4-1. DB에서 현재 task에 연결된 파일 URL 리스트 조회
+        const existingFiles = await tx.file.findMany({
+          where: { taskId },
+          select: { id: true, url: true },
+        });
+        const existingUrls = existingFiles.map((f) => f.url);
+
+        // 4-2. 삭제할 파일 URL 계산 (DB O, 클라이언트 X)
+        const urlsToRemove = existingUrls.filter(
+          (url) => !attachments.includes(url)
+        );
+
+        // 4-3. 추가할 파일 URL 계산 (클라이언트 O, DB X)
+        const urlsToAdd = attachments.filter(
+          (url) => !existingUrls.includes(url)
+        );
+
+        // 4-4. 삭제 처리
+        if (urlsToRemove.length > 0) {
+          await tx.file.deleteMany({
+            where: {
+              url: { in: urlsToRemove },
+              taskId,
+            },
+          });
+        }
+
+        // 4-5. 추가 처리
+        if (urlsToAdd.length > 0) {
+          await tx.file.createMany({
+            data: urlsToAdd.map((url) => {
+              const parts = url.split("/");
+              const filename = parts[parts.length - 1]!; // '!'로 타입 단언
+
+              return {
+                url,
+                filename,
+                taskId,
+                mimeType: null,
+                size: null,
+                uploaderId: null,
+              };
+            }),
+          });
+        }
+      }
+
+      // 5. 태그와 파일을 제외한 나머지(rest) 필드 업데이트
       const updatedTask = await tx.task.update({
         where: { id: taskId },
-        data: {
-          ...rest, // title, content 등 나머지 필드 업데이트
-          tags: {
-            create: tags.map((tagName: string) => ({
-              tag: {
-                connectOrCreate: {
-                  where: { name: tagName },
-                  create: { name: tagName },
-                },
-              },
-            })),
-          },
-        },
+        data: rest, // (예: title, description, dueDate 등)
         include: {
+          // 업데이트된 최신 관계 데이터를 포함하여 반환
           assignee: {
             select: { id: true, name: true, email: true, profileImage: true },
           },
@@ -169,6 +226,7 @@ export const TaskRepository = {
         },
       });
 
+      // 6. 트랜잭션 결과 반환
       return updatedTask;
     });
   },

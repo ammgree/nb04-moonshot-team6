@@ -42,7 +42,7 @@ export const TaskToResponse = (task: TaskWithRelations) => {
     status: mapBackendToFrontendStatus(task.status),
     assignee: task.assignee,
     tags: task.tags.map((t) => t.tag),
-    attachments: task.files,
+    attachments: task.files.map((f) => f.url),
     createdAt: task.createdAt,
     updatedAt: task.updatedAt,
   };
@@ -81,6 +81,10 @@ export const UpdateTaskDataToPrisma = (
 
   if (data.tags !== undefined) {
     input.tags = data.tags; // 혹은 prisma에 맞는 형태로 변환 필요 (아래 참고)
+  }
+
+  if (data.attachments !== undefined) {
+    input.attachments = data.attachments;
   }
 
   return input;

@@ -45,6 +45,7 @@ export const TaskService = {
       endAt,
       projectId,
       assigneeId,
+      attachments: body.attachments,
       tags: (body.tags ?? []).map((tagName) => ({
         tag: {
           connectOrCreate: {
@@ -120,6 +121,7 @@ export const TaskService = {
     if (!userId || isNaN(userId)) {
       throw new UnauthorizedError("로그인이 필요합니다.");
     }
+    console.log("body:", body);
 
     const isMember = await TaskRepository.findProjectMemberByTaskId(
       taskId,
@@ -132,7 +134,11 @@ export const TaskService = {
 
     const prismaInput = UpdateTaskDataToPrisma(body);
 
+    console.log("prismainput", prismaInput);
+
     const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
+
+    console.log("update:", TaskToResponse(updateTask));
 
     return TaskToResponse(updateTask);
   },
