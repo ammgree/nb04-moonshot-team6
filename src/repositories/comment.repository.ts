@@ -27,6 +27,20 @@ export interface commentListResponse {
   total: number;
 }
 
+export type CommentResponse = {
+    id: number;
+    content:string;
+    taskId: number;
+    author: {
+      id: number;
+      name: string | null;
+      email: string;
+      profileImage: string | null;
+    };
+    createdAt: Date;
+    updatedAt: Date;
+  };
+
 export class commentRepo {
   async create({ content, authorId, taskId }: createCommentInput): Promise<commentResponse> {
     return prisma.comment.create({

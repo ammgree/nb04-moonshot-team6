@@ -1,7 +1,7 @@
 import prisma from "../configs/prisma.js";
 import { HttpError } from "../utils/HttpError.js";
-import { commentRepo } from "../repositories/comment.repository.js";
-import type { commentResponse } from "../repositories/comment.repository.js";
+import { commentRepo, } from "../repositories/comment.repository.js";
+import type { commentResponse, CommentResponse } from "../repositories/comment.repository.js";
 
 const CommentRepo = new commentRepo();
 
@@ -32,22 +32,6 @@ export async function createdComment(userId: number, taskId: number, content: st
   
   return await CommentRepo.create({ content, taskId, authorId: userId })
 }
-
-
-type CommentResponse = {
-    id: number;
-    content:string;
-    taskId: number;
-    author: {
-      id: number;
-      name: string | null;
-      email: string;
-      profileImage: string | null;
-    };
-    createdAt: Date;
-    updatedAt: Date;
-  };
-
 
 export async function getedtaskComment(userId: number, taskId: number, page: number, limit: number): Promise<{
   data: CommentResponse[]; total: number }> 
@@ -85,7 +69,6 @@ export async function getedtaskComment(userId: number, taskId: number, page: num
   return await CommentRepo.findByTask(taskId, page, limit);
  }
 
-
 export async function getedComment(userId: number, taskId: number) {
   if (!userId) {
     throw new HttpError("로그인이 필요합니다", 401);
@@ -115,7 +98,6 @@ export async function getedComment(userId: number, taskId: number) {
 
   return await CommentRepo.findComment(taskId);
 }
-
 
 export async function patchedComment(userId: number, commentId: number, taskId: number, content: string) {
   if (!userId) {
@@ -156,7 +138,6 @@ export async function patchedComment(userId: number, commentId: number, taskId: 
 
   return await CommentRepo.updateComment(commentId, content);
 }
-
 
 export async function deletedComment(userId: number, taskId: number, commentId: number) {
   if (!userId) {

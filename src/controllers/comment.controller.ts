@@ -15,7 +15,7 @@ export async function createComment(req: Request, res: Response, next: NextFunct
       data: result
     })
   }
-  catch (error: any) {
+  catch (error) {
   next (error);
   }
 }
@@ -35,7 +35,7 @@ export async function gettaskcomment(req: Request, res: Response, next: NextFunc
       data: result
     })
   }
-  catch (error: any) {
+  catch (error) {
   next (error);
   }
 }
@@ -62,7 +62,7 @@ export async function getComment(req: Request, res: Response, next: NextFunction
       data: result
     })
   }
-  catch (error: any) {
+  catch (error) {
   next (error);
   }
 }
@@ -82,7 +82,7 @@ export async function patchComment(req: Request, res: Response, next: NextFuncti
       data: result
     })
   }
-  catch (error: any) {
+  catch (error) {
   next (error);
   }
 }
@@ -98,7 +98,7 @@ export async function deleteComment(req: Request, res: Response, next: NextFunct
   
     res.status(204).send();
   }
-  catch (error: any) {
+  catch (error) {
   next (error);
   }
 }
