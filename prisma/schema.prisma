@@ -128,7 +128,7 @@ model Task {
   subtasks Subtask[]
   comments Comment[]
   files    File[]
-  tags     String[]
+  tags     TaskTag[]
 
   @@index([projectId])
 }
@@ -169,4 +169,21 @@ model File {
   task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId     Int?
   createdAt  DateTime @default(now())
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  taskId Int
+  tagId  Int
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([taskId, tagId])
 }

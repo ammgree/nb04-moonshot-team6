@@ -90,3 +90,52 @@ tsconfig.json
 ## 프로젝트 회고록
 
 (제작한 발표자료 링크 혹은 첨부파일 첨부)
+
+```
+nb04-moonshot-team6
+├─ README.md
+├─ package-lock.json
+├─ package.json
+├─ prisma
+│  ├─ migrations
+│  │  └─ 20251010152601_init
+│  ├─ schema.prisma
+│  └─ seed.ts
+├─ src
+│  ├─ app.ts
+│  ├─ configs
+│  │  ├─ passport.ts
+│  │  └─ prisma.ts
+│  ├─ controllers
+│  │  ├─ auth.controller.ts
+│  │  ├─ project.controller.ts
+│  │  └─ user.controller.ts
+│  ├─ middlewares
+│  │  ├─ auth.middleware.ts
+│  │  └─ error.middleware.ts
+│  ├─ models
+│  │  └─ user.model.ts
+│  ├─ repositories
+│  │  ├─ auth.repository.ts
+│  │  ├─ project.repository.ts
+│  │  └─ user.repository.ts
+│  ├─ routes
+│  │  ├─ auth.route.ts
+│  │  ├─ index.ts
+│  │  ├─ project.route.ts
+│  │  └─ user.route.ts
+│  ├─ server.ts
+│  ├─ services
+│  │  ├─ auth.service.ts
+│  │  ├─ project.service.ts
+│  │  └─ user.service.ts
+│  ├─ types
+│  │  └─ express.d.ts
+│  └─ utils
+│     ├─ constants.ts
+│     ├─ error.ts
+│     └─ jwt.ts
+├─ tsconfig.json
+└─ tsconfig.seed.json
+
+```
