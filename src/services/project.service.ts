@@ -7,6 +7,11 @@ import {
 } from "../utils/error.js";
 import nodemailer from "nodemailer";
 import fs from "fs";
+// import {
+//   DEFAULT_PAGE,
+//   MIN_PAGESIZE,
+//   MAX_PAGESIZE,
+// } from "../utils/constants.js";
 
 // -------------------------
 // 프로젝트 생성
@@ -42,36 +47,6 @@ export const createProject = async (
 // -------------------------
 // 프로젝트 목록 조회
 // -------------------------
-/*export const getUserProjects = async (
-  userId: number,
-  sort: "latest" | "name" = "latest"
-) => {
-  if (!userId || isNaN(userId))
-    throw new UnauthorizedError("로그인이 필요합니다");
-  if (sort !== "latest" && sort !== "name") {
-    throw new BadRequestError("잘못된 요청입니다"); // 400
-  }
-
-  const projects = await repo.getUserProjectsRepo(userId, sort);
-
-  const data = projects.map((p) => ({
-    id: p.id,
-    name: p.name,
-    description: p.description ?? "",
-    memberCount: p.members.length,
-    todoCount: p.tasks?.filter((t) => t.status === "TODO").length ?? 0,
-    inProgressCount:
-      p.tasks?.filter((t) => t.status === "IN_PROGRESS").length ?? 0,
-    doneCount: p.tasks?.filter((t) => t.status === "DONE").length ?? 0,
-    createdAt: p.createdAt,
-    updatedAt: p.updatedAt,
-  }));
-
-  return {
-    data,
-    total: data.length,
-  };
-};*/
 
 export const getUserProjects = async (
   userId: number,

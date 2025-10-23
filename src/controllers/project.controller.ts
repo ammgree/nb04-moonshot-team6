@@ -1,6 +1,6 @@
-import type { Request, Response } from "express";
 import * as service from "../services/project.service.js";
 import { AppError, getErrorMessage } from "../utils/error.js";
+import type { Request, Response } from "express";
 
 // 프로젝트 생성
 export const createProjectController = async (req: Request, res: Response) => {
@@ -8,7 +8,7 @@ export const createProjectController = async (req: Request, res: Response) => {
     const userId = Number(req.user?.id);
 
     const project = await service.createProject(userId, req.body);
-    res.status(201).json(project);
+    res.status(201).json({ data: project });
   } catch (err) {
     if (err instanceof AppError) {
       res.status(err.statusCode).json({ message: err.message });
@@ -90,3 +90,4 @@ export const deleteProjectController = async (req: Request, res: Response) => {
     }
   }
 };
+
