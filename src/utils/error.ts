@@ -18,7 +18,6 @@ export class SignUpError extends AppError {
     super(message, 400);
   }
 }
-
 export class BadRequestError extends AppError {
   constructor(message: string = "잘못된 요청입니다") {
     super(message, 400);
