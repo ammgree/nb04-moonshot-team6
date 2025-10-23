@@ -17,7 +17,7 @@ export const SubtaskRepository = {
         where: { taskId },
         skip: (page - 1) * limit,
         take: limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "asc" },
       }),
       prisma.subtask.count({ where: { taskId } }),
     ]);
