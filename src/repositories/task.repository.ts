@@ -131,7 +131,6 @@ export const TaskRepository = {
     // 1. data에서 tags, attachments, 나머지(rest)를 분리합니다.
     //    (attachments의 기본값 = [] 를 제거해야 undefined 체크가 가능합니다)
     const { tags, attachments, ...rest } = data;
-    console.log("repository:", attachments);
 
     // 2. 트랜잭션 시작
     return await prisma.$transaction(async (tx) => {

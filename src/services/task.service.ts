@@ -134,11 +134,7 @@ export const TaskService = {
 
     const prismaInput = UpdateTaskDataToPrisma(body);
 
-    console.log("prismainput", prismaInput);
-
     const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
-
-    console.log("update:", TaskToResponse(updateTask));
 
     return TaskToResponse(updateTask);
   },
