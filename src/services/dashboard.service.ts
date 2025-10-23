@@ -101,7 +101,6 @@ if (keyword) {
       createdAt: t.createdAt,
       updatedAt: t.updatedAt,
   }));
-  console.log(result);
   return result;
 };
 

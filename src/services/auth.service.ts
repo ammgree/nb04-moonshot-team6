@@ -30,23 +30,25 @@ const getLogin = async(email: string, password: string) => {
   if (!isMatch) {
     throw { status: 401, message: '이메일 또는 비밀번호가 잘못되었습니다.' };
   }
+  // 토큰 발급
   const accessToken = auth.createToken(user);
   const refreshToken = auth.createToken(user, 'refresh');
 
+    // const accessToken = signAccessToken({ userId: user.id });
+    // const refreshToken = signRefreshToken({ userId: user.id });
+
   // 기존 refreshToken 모두 폐기
-  await prisma.refreshToken.updateMany({
-  where: { userId: user.id },
-  data: { revoked: true } 
+  await authRepo.revokeById(user.id);
+
+  const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
+  // DB에 새로 발급한 refreshToken 저장
+
+  await authRepo.createRefreshToken({
+    token: refreshToken,
+    userId: user.id,
+    expiresAt,
   });
 
-  // DB에 새로 발급한 refreshToken 저장
-  await prisma.refreshToken.create({
-    data: { 
-      userId: user.id, 
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 14*24*60*60*1000) // 2주
-    } 
-  });
   return { accessToken, refreshToken };
 };
 
