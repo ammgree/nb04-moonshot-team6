@@ -7,6 +7,12 @@ import { OrderBy, Order } from "../types/task.js";
 import { TaskRepository } from "../repositories/task.repository.js";
 import { TaskToResponse, UpdateTaskDataToPrisma } from "../utils/task.utils.js";
 import { mapFrontendToBackendStatus } from "../utils/statusMapper.js";
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../utils/error.js";
 
 export const TaskService = {
   createTask: async (
@@ -14,12 +20,23 @@ export const TaskService = {
     projectId: number,
     assigneeId: number
   ) => {
+    if (!assigneeId || isNaN(assigneeId)) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
+    if (!body.title || !body.description) {
+      throw new BadRequestError("제목과 설명은 필수입니다.");
+    }
     const startAt = new Date(
       body.startYear,
       body.startMonth - 1,
       body.startDay
     );
     const endAt = new Date(body.endYear, body.endMonth - 1, body.endDay);
+
+    if (startAt > endAt) {
+      throw new BadRequestError("시작일은 종료일보다 늦을 수 없습니다.");
+    }
 
     const task = await TaskRepository.createTask({
       title: body.title,
@@ -42,13 +59,17 @@ export const TaskService = {
   },
 
   getTasks: async (projectId: number, userId: number, query: GetTasksQuery) => {
+    if (!userId || isNaN(userId)) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
     const isMember = await TaskRepository.findProjectMemberByProjectId(
       projectId,
       userId
     );
 
     if (!isMember) {
-      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+      throw new ForbiddenError("프로젝트 멤버가 아닙니다.");
     }
 
     const page = Number(query.page ?? 1);
@@ -74,31 +95,39 @@ export const TaskService = {
   },
 
   getTaskId: async (taskId: number, userId: number) => {
+    if (!userId || isNaN(userId)) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
     const isMember = await TaskRepository.findProjectMemberByTaskId(
       taskId,
       userId
     );
 
     if (!isMember) {
-      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+      throw new ForbiddenError("프로젝트의 멤버가 아닙니다.");
     }
 
     const task = await TaskRepository.getTaskId(taskId);
 
     if (!task) {
-      throw new Error("Task not found");
+      throw new NotFoundError("할 일을 찾을 수 없습니다.");
     }
     return TaskToResponse(task);
   },
 
   updateTask: async (body: UpdateTaskData, taskId: number, userId: number) => {
+    if (!userId || isNaN(userId)) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
     const isMember = await TaskRepository.findProjectMemberByTaskId(
       taskId,
       userId
     );
 
     if (!isMember) {
-      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+      throw new ForbiddenError("프로젝트의 멤버가 아닙니다.");
     }
 
     const prismaInput = UpdateTaskDataToPrisma(body);
@@ -109,19 +138,23 @@ export const TaskService = {
   },
 
   deleteTask: async (taskId: number, userId: number) => {
+    if (!userId || isNaN(userId)) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
     const isMember = await TaskRepository.findProjectMemberByTaskId(
       taskId,
       userId
     );
 
     if (!isMember) {
-      throw new Error("해당 프로젝트의 멤버가 아닙니다.");
+      throw new ForbiddenError("프로젝트의 멤버가 아닙니다.");
     }
 
     const task = await TaskRepository.getTaskId(taskId);
 
     if (!task) {
-      throw new Error("할 일을 찾을 수 없습니다.");
+      throw new NotFoundError("할 일을 찾을 수 없습니다.");
     }
 
     await TaskRepository.deleteTask(taskId);

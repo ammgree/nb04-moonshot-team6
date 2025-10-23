@@ -32,10 +32,12 @@ export const TaskController = {
       const tasks = await TaskService.getTasks(projectId, userId, req.query);
 
       res.status(200).json(tasks);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({ message: "서버 오류" });
+    } catch (err) {
+      if (err instanceof AppError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: getErrorMessage(err) });
+      }
     }
   },
 
@@ -64,10 +66,12 @@ export const TaskController = {
       const updateTask = await TaskService.updateTask(req.body, taskId, userId);
 
       res.status(200).json(updateTask);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({ message: "서버 오류" });
+    } catch (err) {
+      if (err instanceof AppError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: getErrorMessage(err) });
+      }
     }
   },
 
@@ -79,10 +83,12 @@ export const TaskController = {
       await TaskService.deleteTask(taskId, userId);
 
       res.status(204).send();
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({ message: "서버 오류" });
+    } catch (err) {
+      if (err instanceof AppError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: getErrorMessage(err) });
+      }
     }
   },
 };
