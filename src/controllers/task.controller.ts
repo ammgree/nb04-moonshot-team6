@@ -6,7 +6,7 @@ export const TaskController = {
   createTask: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const projectId = Number(req.params.projectId);
-      const assigneeId = Number(req.token?.userId);
+      const assigneeId = Number(req.user?.id);
 
       const newTask = await TaskService.createTask(
         req.body,
@@ -27,7 +27,7 @@ export const TaskController = {
   getTasks: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const projectId = Number(req.params.projectId);
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
 
       const tasks = await TaskService.getTasks(projectId, userId, req.query);
 
@@ -44,7 +44,7 @@ export const TaskController = {
   getTaskId: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const taskId = Number(req.params.taskId);
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
 
       const task = await TaskService.getTaskId(taskId, userId);
 
@@ -61,7 +61,7 @@ export const TaskController = {
   updatedTask: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const taskId = Number(req.params.taskId);
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
 
       const updateTask = await TaskService.updateTask(req.body, taskId, userId);
 
@@ -78,7 +78,7 @@ export const TaskController = {
   deleteTask: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const taskId = Number(req.params.taskId);
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
 
       await TaskService.deleteTask(taskId, userId);
 

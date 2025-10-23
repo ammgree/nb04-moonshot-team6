@@ -5,7 +5,7 @@ import { AppError, getErrorMessage } from "../utils/error.js";
 export const SubtaskController = {
   createSubtask: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
       const taskId = Number(req.params.taskId);
       const { title } = req.body;
 
@@ -26,7 +26,7 @@ export const SubtaskController = {
 
   getSubtask: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
       const taskId = Number(req.params.taskId);
       const page = Number(req.query.page ?? 1);
       const limit = Number(req.query.limit ?? 10);
@@ -50,7 +50,7 @@ export const SubtaskController = {
 
   getSubtaskId: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
       const subtaskId = Number(req.params.subtaskId);
 
       const subtask = await SubtaskService.getSubtaskId(userId, subtaskId);
@@ -67,7 +67,7 @@ export const SubtaskController = {
 
   updateSubtask: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
       const subtaskId = Number(req.params.subtaskId);
 
       const { title, status } = req.body;
@@ -91,7 +91,7 @@ export const SubtaskController = {
 
   deleteSubtask: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = Number(req.token?.userId);
+      const userId = Number(req.user?.id);
       const subtaskId = Number(req.params.subtaskId);
 
       await SubtaskService.deleteSubtask(userId, subtaskId);
