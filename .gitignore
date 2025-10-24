@@ -21,6 +21,7 @@ tmp/
 *.db
 *.sqlite
 *.sqlite-journal
+*.toml
 
 # PostgreSQL
 *.dump

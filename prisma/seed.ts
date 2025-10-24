@@ -77,7 +77,7 @@ async function main() {
     },
   });
 
-  // 4. 태스크 생성
+  // 4. 태스크 생성 (tags 별도 생성 및 연결 예정)
   const task1 = await prisma.task.create({
     data: {
       title: "저장소 준비",
@@ -87,7 +87,6 @@ async function main() {
       endAt: new Date("2025-10-03T18:00:00Z"),
       projectId: project1.id,
       assigneeId: user2.id,
-      tags: ["설정", "저장소"],
     },
   });
 
@@ -100,33 +99,36 @@ async function main() {
       endAt: new Date("2025-10-07T18:00:00Z"),
       projectId: project1.id,
       assigneeId: user1.id,
-      tags: ["디자인", "UI"],
     },
   });
 
-  // 5. 서브태스크 생성
-  await prisma.subtask.createMany({
+  // 5. 태그 생성 (중복 체크는 생략 - 단순 시드 예)
+  const tagStorage = await prisma.tag.create({ data: { name: "설정" } });
+  const tagRepo = await prisma.tag.create({ data: { name: "저장소" } });
+  const tagDesign = await prisma.tag.create({ data: { name: "디자인" } });
+  const tagUI = await prisma.tag.create({ data: { name: "UI" } });
+
+  // 6. 태스크와 태그 연결 (TaskTag 생성)
+  await prisma.taskTag.createMany({
     data: [
-      { title: "저장소 생성", status: SubtaskStatus.TODO, taskId: task1.id },
-      {
-        title: "브랜치 규칙 설정",
-        status: SubtaskStatus.TODO,
-        taskId: task1.id,
-      },
-      {
-        title: "로그인 화면 설계",
-        status: SubtaskStatus.DONE,
-        taskId: task2.id,
-      },
-      {
-        title: "대시보드 화면 설계",
-        status: SubtaskStatus.TODO,
-        taskId: task2.id,
-      },
+      { taskId: task1.id, tagId: tagStorage.id },
+      { taskId: task1.id, tagId: tagRepo.id },
+      { taskId: task2.id, tagId: tagDesign.id },
+      { taskId: task2.id, tagId: tagUI.id },
     ],
   });
 
-  // 6. 코멘트 생성
+  // 7. 서브태스크 생성
+  await prisma.subtask.createMany({
+    data: [
+      { title: "저장소 생성", status: SubtaskStatus.TODO, taskId: task1.id },
+      { title: "브랜치 규칙 설정", status: SubtaskStatus.TODO, taskId: task1.id },
+      { title: "로그인 화면 설계", status: SubtaskStatus.DONE, taskId: task2.id },
+      { title: "대시보드 화면 설계", status: SubtaskStatus.TODO, taskId: task2.id },
+    ],
+  });
+
+  // 8. 코멘트 생성
   await prisma.comment.createMany({
     data: [
       {

@@ -9,7 +9,7 @@
     "types": ["node", "express", "cookie-parser", "cors", "passport"],
 
     // File Layout
-    "baseUrl": "./src",
+    //"baseUrl": "./src",
     "rootDir": "./src",
     "outDir": "./dist",
 

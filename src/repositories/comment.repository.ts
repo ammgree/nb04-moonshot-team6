@@ -1,153 +1,89 @@
-import type { StringValue } from "ms";
 import prisma from "../configs/prisma.js";
-import type { Comment } from "@prisma/client";
 
-export interface createCommentInput {
-  content: string;
-  authorId: number;
-  taskId: number;
-}
-
-export interface commentResponse {
-  id: number;
-  content: string;
-  taskId: number;
-  author: {
-    id: number;
-    name: string | null;
-    email: string;
-    profileImage: string | null;
-  };
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface commentListResponse {
-  data: commentResponse[];
-  total: number;
-}
-
-export type CommentResponse = {
-    id: number;
-    content:string;
-    taskId: number;
-    author: {
-      id: number;
-      name: string | null;
-      email: string;
-      profileImage: string | null;
-    };
-    createdAt: Date;
-    updatedAt: Date;
-  };
-
-export class commentRepo {
-  async create({ content, authorId, taskId }: createCommentInput): Promise<commentResponse> {
-    return prisma.comment.create({
-      data: { content, authorId, taskId },
-      select: {
-        id: true,
-        content: true,
-        taskId: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            profileImage: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-  }
-
-  async countByTask(taskId: number): Promise<number> {
-    return prisma.comment.count({
-      where: { taskId },
-    });
-  }
-
-  async findByTask(taskId: number, page: number, limit: number): Promise<commentListResponse> {
-  const total = await prisma.comment.count({
-    where: { taskId },
-  });
-
-  const data = await prisma.comment.findMany({
-    where: { taskId },
+/**
+ * 댓글 생성
+ */
+export const createCommentRepo = (authorId: number, taskId: number, content: string) => {
+  return prisma.comment.create({
+    data: { content, authorId, taskId },
     select: {
       id: true,
       content: true,
       taskId: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          profileImage: true,
-        },
-      },
+      author: { select: { id: true, name: true, email: true, profileImage: true } },
       createdAt: true,
       updatedAt: true,
     },
-    orderBy: { createdAt: "desc" },
-    skip: (page - 1) * limit,
-    take: limit,
+  });
+};
+
+export const getTaskCommentsRepo = async (
+  whereClause: any,
+  skip: number,
+  take: number,
+  orderBy: Record<string, "asc" | "desc">
+) => {
+  const data = await prisma.comment.findMany({
+    where: whereClause,
+    orderBy: [orderBy],
+    skip,
+    take,
+    select: {
+      id: true,
+      content: true,
+      taskId: true,
+      author: { select: { id: true, name: true, email: true, profileImage: true } },
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  const total = await prisma.comment.count({
+    where: whereClause,
   });
 
   return { data, total };
-  }
+};
 
-  async findComment(taskId: number) {
-  const comment = await prisma.comment.findMany({
-    where: { taskId },
+/**
+ * 단일 댓글 조회
+ */
+export const findCommentByIdRepo = (commentId: number) => {
+  return prisma.comment.findUnique({
+    where: { id: commentId },
     select: {
       id: true,
       content: true,
       taskId: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          profileImage: true,
-        },
-      },
+      authorId: true,
+      author: { select: { id: true, name: true, email: true, profileImage: true } },
       createdAt: true,
       updatedAt: true,
     },
   });
+};
 
-  return comment;
-  }
-  
-  async updateComment(commentId: number, content: string) {
-    const update = await prisma.comment.update({
-      where: { id: commentId },
-      data: { content },
-      select : {
-        id: true,
-        content: true,
-        taskId: true,
-        author: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            profileImage: true,
-        },
-      },
-        createdAt: true,
-        updatedAt: true,
+/**
+ * 댓글 수정
+ */
+export const updateCommentRepo = (commentId: number, content: string) => {
+  return prisma.comment.update({
+    where: { id: commentId },
+    data: { content },
+    select: {
+      id: true,
+      content: true,
+      taskId: true,
+      author: { select: { id: true, name: true, email: true, profileImage: true } },
+      createdAt: true,
+      updatedAt: true,
     },
   });
-  return update;
-  } 
+};
 
-  async deleteComment(commentId: number) {
-    await prisma.comment.delete({
-      where: { id: commentId },
-    });
-  }
-}
+/**
+ * 댓글 삭제
+ */
+export const deleteCommentRepo = (commentId: number) => {
+  return prisma.comment.delete({ where: { id: commentId } });
+};
