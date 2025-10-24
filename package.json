@@ -29,7 +29,7 @@
     "axios": "^1.12.2",
     "bcrypt": "6.0.0",
     "bcryptjs": "^3.0.2",
-    "cloudinary": "^2.7.0",
+    "cloudinary": "^2.8.0",
     "cloudinary-build-url": "^0.2.4",
     "configs": "^1.0.3",
     "cookie-parser": "1.4.7",
