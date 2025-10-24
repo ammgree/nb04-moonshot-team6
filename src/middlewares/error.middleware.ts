@@ -1,18 +1,22 @@
 import type { Request, Response, NextFunction } from "express";
+import { AppError, getErrorMessage } from "../utils/error.js";
 
-export function errorHandler(
-  err: any,
+export const errorHandler = (
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  console.error(" Error caught by global handler:", err);
+) => {
+  console.error(err);
 
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || "서버 내부 오류가 발생했습니다.";
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      message: getErrorMessage(err),
+    });
+  }
 
-  res.status(status).json({
-    success: false,
-    message,
+  // 예상치 못한 에러 처리
+  res.status(500).json({
+    message: "서버 내부 오류가 발생했습니다",
   });
-}
+};

@@ -1,23 +1,39 @@
-import jwt, { type JwtPayload } from "jsonwebtoken";
-import type { Request, Response, NextFunction } from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-export async function authMiddlewere(req: Request, res: Response, next: NextFunction) {
-  try {
-    const authHeader = req.headers.authorization;
+import express from "express";
+import dotenv from "dotenv";
+import { UserNotFoundError } from "../utils/error.js";
 
-  if (!authHeader) {
-    return res.status(401).json({ message: "토큰이 없습니다. "});
-  }
+const app = express();
+app.use(express.json());
+dotenv.config();
 
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "토큰이 잘못되었습니다." });
-  }
-  const decoded = jwt.verify(token, process.env.JWT_SECRETE as string) as JwtPayload;
+// 토큰 생성 함수
+const createToken = (user: { id: number }, type?: string) => {
+  const payload = { id: user.id };
+  const options: jwt.SignOptions = {
+    expiresIn: type === "refresh" ? "2w" : "1h",
+  };
+  return jwt.sign(payload, process.env.JWT_SECRET!, options);
+};
 
-  req.user = decoded as { id: number };
-  next();
-} catch (error) {
-  res.status(401).json({ message: "유효하지 않은 토큰입니다. "});
-}
-}
+export default {
+  createToken,
+  async verifyPassword(
+    inputPassword: string,
+    password: string
+  ): Promise<boolean> {
+    try {
+      return await bcrypt.compare(inputPassword, password);
+    } catch (error) {
+      throw UserNotFoundError;
+    }
+  },
+
+  // 비밀번호 해시
+  async hashPassword(plain: string) {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(plain, salt);
+  },
+};
