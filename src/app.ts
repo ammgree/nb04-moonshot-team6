@@ -58,6 +58,9 @@ app.use("/", dashboardRouter);
 // 멤버
 app.use("/", memberRouter);
 
+// 댓글
+app.use("/", commentRouter);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "secret",

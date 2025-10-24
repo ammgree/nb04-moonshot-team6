@@ -42,7 +42,11 @@
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     "moduleResolution": "nodenext",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": [
+    "./node_modules/@types",
+    "src/types"
+  ]
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "test/**/*.ts", "express.d.ts", "src/types/**/*.d.ts", "src/app.ts"]
 }
