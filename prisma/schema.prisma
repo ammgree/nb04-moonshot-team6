@@ -96,7 +96,7 @@ model Invitation {
   project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId    Int
   email        String
-  invitationId String // 서버에서 생성하고 DB에 저장되는 고유 초대 코드(UUID 등)
+  invitationId String? // 서버에서 생성하고 DB에 저장되는 고유 초대 코드(UUID 등)
   status       InvitationStatus @default(PENDING)
 
   invitedBy Int?

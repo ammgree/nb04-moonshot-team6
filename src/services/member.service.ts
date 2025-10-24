@@ -126,4 +126,8 @@ export async function cancelInvitation(invitationId: string) {
     throw new BadRequestError("이미 처리된 초대입니다.");
   }
   await memberRepo.cancelInvitation(invitationId);
+  await memberRepo.updateInvitationStatus(
+    invitationId,
+    "REJECTED" as InvitationStatus
+  );
 }

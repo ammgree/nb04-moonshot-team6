@@ -28,7 +28,7 @@ export async function getMembers(
 // 해당 프로젝트의 초대 목록 조회
 export async function getInvitations(projectId: number) {
   return await prisma.invitation.findMany({
-    where: { projectId, invitationId: { not: "" } },
+    where: { projectId, invitationId: { not: null } },
     select: {
       id: true,
       email: true,
@@ -54,7 +54,7 @@ export async function deleteMember(projectId: number, userId: number) {
 export async function updateStatus(projectId: number) {
   return await prisma.invitation.updateMany({
     where: { projectId, status: "ACCEPTED" },
-    data: { invitationId: "", status: "PENDING" },
+    data: { invitationId: null, status: "PENDING" },
   });
 }
 
@@ -65,7 +65,7 @@ export async function findInvitation(projectId: number, email: string) {
       projectId,
       email,
       invitationId: {
-        not: "",
+        not: null,
       },
     },
   });
@@ -116,7 +116,7 @@ export async function cancelInvitation(invitationId: string) {
   return await prisma.invitation.updateMany({
     where: { invitationId },
     data: {
-      invitationId: "",
+      invitationId: null,
     },
   });
 }
