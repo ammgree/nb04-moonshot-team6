@@ -1,5 +1,5 @@
 import { SubtaskController } from "../controllers/subtask.controller.js";
-import passport from "passport";
+import passport from "../configs/passport.js";
 import express from "express";
 
 const router = express.Router();

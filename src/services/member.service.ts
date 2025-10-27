@@ -26,18 +26,30 @@ const transporter = nodemailer.createTransport({
 export async function getMembers(
   page: number,
   limit: number,
-  projectId: number
+  projectId: number,
+  userId: number
 ) {
+  const ismember = await memberRepo.findProjectMember(projectId, userId);
+  if (!ismember) {
+    throw new ForbiddenError("프로젝트 멤버가 아닙니다.");
+  }
+  // 현재 멤버
   const members = await memberRepo.getMembers(page, limit, projectId);
+  // 초대 중
   const invitations = await memberRepo.getInvitations(projectId);
-  const data = members.map((item) => {
-    const invite = invitations.find((inv) => inv.email === item.user.email);
+  const invitedEmails = invitations.map((inv) => inv.email);
+  const invitedUser = await memberRepo.findUsersByEmail(invitedEmails);
+
+  const combined = [...members, ...invitedUser];
+  const data = combined.map((item) => {
+    const user = "user" in item ? item.user : item;
+    const invite = invitations.find((inv) => inv.email === user.email);
     return {
-      id: item.user.id,
-      name: item.user.name,
-      email: item.user.email,
-      profileImage: item.user.profileImage,
-      taskCount: item.user.tasksAssigned.length,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      taskCount: user.tasksAssigned.length,
       status: invite?.status || "ACCEPTED",
       invitationId: invite?.invitationId || null,
     };
@@ -50,8 +62,20 @@ export async function getMembers(
 }
 
 // 프로젝트에서 유저 제외
-export async function deleteMember(projectId: number, userId: number) {
-  await memberRepo.deleteMember(projectId, userId);
+export async function deleteMember(
+  projectId: number,
+  memberId: number,
+  userId: number
+) {
+  const member = await memberRepo.findProjectMember(projectId, memberId);
+  if (!member) {
+    throw new NotFoundError("해당 프로젝트의 멤버가 아닙니다.");
+  }
+  const owner = await memberRepo.findProjectOwner(projectId);
+  if (userId !== owner?.id) {
+    throw new ForbiddenError("프로젝트 관리자가 아닙니다.");
+  }
+  await memberRepo.deleteMember(projectId, memberId);
   await memberRepo.updateStatus(projectId);
 }
 
@@ -59,13 +83,19 @@ export async function deleteMember(projectId: number, userId: number) {
 export async function inviteMember(
   projectId: number,
   email: string,
-  invitationId: string
+  invitationId: string,
+  userId: number
 ) {
+  const owner = await memberRepo.findProjectOwner(projectId);
+  if (userId !== owner?.id) {
+    throw new ForbiddenError("프로젝트 관리자가 아닙니다.");
+  }
+
   const existing = await memberRepo.findInvitation(projectId, email);
   if (existing) {
     throw new BadRequestError("이미 초대된 이메일입니다.");
   }
-  await memberRepo.createInvitation(projectId, email, invitationId);
+  await memberRepo.createInvitation(projectId, email, invitationId, userId);
   const inviteLink =
     "http://localhost:3000/invitations/" + invitationId + "/accept";
   console.log(inviteLink);
@@ -117,10 +147,13 @@ export async function acceptInvitation(invitationId: string, userId: number) {
 }
 
 // 초대 취소
-export async function cancelInvitation(invitationId: string) {
+export async function cancelInvitation(invitationId: string, userId: number) {
   const invitation = await memberRepo.findInvitationById(invitationId);
   if (!invitation) {
     throw new NotFoundError("유효하지 않은 초대입니다.");
+  }
+  if (invitation.invitedBy !== userId) {
+    throw new ForbiddenError("권한이 없습니다.");
   }
   if (invitation.status !== "PENDING") {
     throw new BadRequestError("이미 처리된 초대입니다.");

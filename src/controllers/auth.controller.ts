@@ -2,9 +2,8 @@ import type { Request, Response, NextFunction } from "express";
 import authService from "../services/auth.service.js";
 import userService from "../services/user.service.js";
 import { OAuth2Client } from "google-auth-library";
-import { GOOGLE_CLIENT_ID } from "../utils/constants.js";
 
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 //회원가입
 export async function register(

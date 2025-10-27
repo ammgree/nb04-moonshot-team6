@@ -72,7 +72,7 @@ export const TaskRepository = {
         ? {
             AND: [
               { projectId }, // 항상 포함
-              { OR: filter }, // 여러 필터 중 하나만 만족하면 통과
+              { AND: filter },
             ],
           }
         : { projectId };
