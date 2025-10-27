@@ -6,6 +6,7 @@ import dashboardRouter from "./routes/dashboard.route.js";
 import projectRouter from "./routes/project.route.js";
 import taskRouter from "./routes/task.router.js";
 import subtaskRouter from "./routes/subtask.router.js";
+import memberRouter from "./routes/member.route.js";
 import cors from "cors";
 import morgan from "morgan";
 import passport from "passport";
@@ -55,6 +56,9 @@ app.use("/", uploadRouter);
 // 대시보드 (칸반, 캘린더)
 app.use("/", dashboardRouter);
 
+// 멤버
+app.use("/", memberRouter);
+
 // 댓글
 app.use("/", commentRouter);
 
@@ -76,8 +80,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-
-
 app.use("/", router);
 
 // 404처리
@@ -93,6 +95,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`서버가 ${port}에서 시작되었습니다.`);
 });
-
 
 export default app;
