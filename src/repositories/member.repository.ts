@@ -38,6 +38,22 @@ export async function getInvitations(projectId: number) {
   });
 }
 
+// 이메일로 유저 조회
+export async function findUsersByEmail(emails: string[]) {
+  return await prisma.user.findMany({
+    where: {
+      email: { in: emails },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      tasksAssigned: true,
+    },
+  });
+}
+
 // 프로젝트에서 유저 제외
 export async function deleteMember(projectId: number, userId: number) {
   await prisma.projectMember.delete({
@@ -75,13 +91,15 @@ export async function findInvitation(projectId: number, email: string) {
 export async function createInvitation(
   projectId: number,
   email: string,
-  invitationId: string
+  invitationId: string,
+  userId: number
 ) {
   return await prisma.invitation.create({
     data: {
       projectId,
       email,
       invitationId,
+      invitedBy: userId,
     },
   });
 }
@@ -126,4 +144,25 @@ export async function findUserById(userId: number) {
   return await prisma.user.findUnique({
     where: { id: userId },
   });
+}
+
+// projectId와 userId로 멤버 찾기
+export async function findProjectMember(projectId: number, userId: number) {
+  return await prisma.projectMember.findUnique({
+    where: {
+      projectId_userId: {
+        projectId,
+        userId,
+      },
+    },
+  });
+}
+
+// 프로젝트 주인 찾기
+export async function findProjectOwner(projectId: number) {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { owner: true },
+  });
+  return project?.owner;
 }
