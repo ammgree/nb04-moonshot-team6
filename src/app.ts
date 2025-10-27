@@ -1,4 +1,4 @@
-import express from "express";
+import authRoutes from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
 import uploadRouter from "./routes/upload.route.js";
@@ -7,15 +7,14 @@ import projectRouter from "./routes/project.route.js";
 import taskRouter from "./routes/task.router.js";
 import subtaskRouter from "./routes/subtask.router.js";
 import memberRouter from "./routes/member.route.js";
+import commentRouter from "./routes/comment.route.js"
+import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import passport from "passport";
 import session from "express-session";
-import authRoutes from "./routes/auth.route.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import "./configs/passport.js";
-import { logger } from "./utils/logger.js";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import dotenv from "dotenv";
 import router from "./routes/index.js";
 
