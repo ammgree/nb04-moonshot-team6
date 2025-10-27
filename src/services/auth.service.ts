@@ -51,9 +51,10 @@ const getLogin = async (email: string, password: string) => {
   return { accessToken, refreshToken };
 };
 
-// 구글 로그인
 export default {
   getLogin,
+
+// 구글 로그인
   async signInWithGoogle(
     profile: {
       email: string;
@@ -72,9 +73,11 @@ export default {
         profileImage: profile.picture ?? null,
       });
     }
+    const accessToken = auth.createToken(user);
+    const refreshToken = auth.createToken(user, "refresh");
 
-    const accessToken = signAccessToken({ userId: user.id });
-    const refreshToken = signRefreshToken({ userId: user.id });
+    // const accessToken = signAccessToken({ userId: user.id });
+    // const refreshToken = signRefreshToken({ userId: user.id });
 
     const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
 

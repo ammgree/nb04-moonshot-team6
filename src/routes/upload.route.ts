@@ -15,7 +15,7 @@ router.post('/files', upload.array('files'), async(req, res) => {
     }
     const uploadResults = await Promise.all(
       files.map((file) =>
-        uploadBuffer(file.buffer, file.mimetype, 'uploads')
+        uploadBuffer(file.buffer, file.mimetype,'uploads', file.originalname)
       )
     );
     res.json(uploadResults);
