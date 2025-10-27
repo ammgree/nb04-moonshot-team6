@@ -36,7 +36,7 @@ export async function register(
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
-
+    
     const userAgent = req.headers["user-agent"];
 
     const result = await authService.getLogin(email, password);
