@@ -33,16 +33,23 @@ export async function getMembers(
   if (!ismember) {
     throw new ForbiddenError("프로젝트 멤버가 아닙니다.");
   }
+  // 현재 멤버
   const members = await memberRepo.getMembers(page, limit, projectId);
+  // 초대 중
   const invitations = await memberRepo.getInvitations(projectId);
-  const data = members.map((item) => {
-    const invite = invitations.find((inv) => inv.email === item.user.email);
+  const invitedEmails = invitations.map((inv) => inv.email);
+  const invitedUser = await memberRepo.findUsersByEmail(invitedEmails);
+
+  const combined = [...members, ...invitedUser];
+  const data = combined.map((item) => {
+    const user = "user" in item ? item.user : item;
+    const invite = invitations.find((inv) => inv.email === user.email);
     return {
-      id: item.user.id,
-      name: item.user.name,
-      email: item.user.email,
-      profileImage: item.user.profileImage,
-      taskCount: item.user.tasksAssigned.length,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      taskCount: user.tasksAssigned.length,
       status: invite?.status || "ACCEPTED",
       invitationId: invite?.invitationId || null,
     };

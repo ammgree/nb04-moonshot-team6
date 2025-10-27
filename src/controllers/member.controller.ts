@@ -60,7 +60,6 @@ export async function inviteMember(req: Request, res: Response) {
     if (!user) {
       throw new UnauthorizedError("로그인이 필요합니다.");
     }
-
     const projectId = Number(req.params.projectId);
     const { email } = req.body;
     const invitationId = randomUUID();
@@ -84,8 +83,11 @@ export async function inviteMember(req: Request, res: Response) {
 export async function acceptInvitation(req: Request, res: Response) {
   try {
     const invitationId = req.params.invitationId!;
-    const userId = Number(req.body.userId); // 임시로 userId를 body로 받음
-    const result = await memberService.acceptInvitation(invitationId, userId);
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+    const result = await memberService.acceptInvitation(invitationId, user.id!);
     res.status(200).json(result);
   } catch (err) {
     if (err instanceof AppError) {

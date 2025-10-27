@@ -38,6 +38,22 @@ export async function getInvitations(projectId: number) {
   });
 }
 
+// 이메일로 유저 조회
+export async function findUsersByEmail(emails: string[]) {
+  return await prisma.user.findMany({
+    where: {
+      email: { in: emails },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      tasksAssigned: true,
+    },
+  });
+}
+
 // 프로젝트에서 유저 제외
 export async function deleteMember(projectId: number, userId: number) {
   await prisma.projectMember.delete({
