@@ -8,13 +8,10 @@ import taskRouter from "./routes/task.router.js";
 import subtaskRouter from "./routes/subtask.router.js";
 import cors from "cors";
 import morgan from "morgan";
-import passport from "passport";
 import session from "express-session";
 import authRoutes from "./routes/auth.route.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
-import "./configs/passport.js";
-import { logger } from "./utils/logger.js";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import  passport from "./configs/passport.js";
 import dotenv from "dotenv";
 import router from "./routes/index.js";
 
@@ -64,7 +61,6 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use(passport.authenticate("jwt", { session: false }));
 
 // ✅ Auth routes
 app.use("/auth", authRoutes);

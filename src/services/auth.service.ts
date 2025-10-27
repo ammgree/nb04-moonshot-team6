@@ -10,7 +10,6 @@ import { signAccessToken, signRefreshToken } from "../utils/jwt.js";
 import {
   REFRESH_TOKEN_EXPIRES_DAYS,
   ACCESS_TOKEN_EXPIRES_IN,
-  GOOGLE_USERINFO_URL,
 } from "../utils/constants.js";
 
 const app = express();
@@ -39,7 +38,7 @@ const getLogin = async (email: string, password: string) => {
   // 기존 refreshToken 모두 폐기
   await authRepo.revokeById(user.id);
 
-  const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
+  const expiresAt = new Date(Date.now() + (REFRESH_TOKEN_EXPIRES_DAYS));
   // DB에 새로 발급한 refreshToken 저장
 
   await authRepo.createRefreshToken({
@@ -73,11 +72,11 @@ export default {
         profileImage: profile.picture ?? null,
       });
     }
-    const accessToken = auth.createToken(user);
-    const refreshToken = auth.createToken(user, "refresh");
+    // const accessToken = auth.createToken(user);
+    // const refreshToken = auth.createToken(user, "refresh");
 
-    // const accessToken = signAccessToken({ userId: user.id });
-    // const refreshToken = signRefreshToken({ userId: user.id });
+    const accessToken = signAccessToken({ userId: user.id });
+    const refreshToken = signRefreshToken({ userId: user.id });
 
     const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
 

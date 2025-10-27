@@ -1,5 +1,5 @@
 import express from "express";
-import passport from "passport";
+import passport from "../configs/passport.js";
 import {
   createCommentController,
   deleteCommentController,
