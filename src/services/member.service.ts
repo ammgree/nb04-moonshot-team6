@@ -26,8 +26,13 @@ const transporter = nodemailer.createTransport({
 export async function getMembers(
   page: number,
   limit: number,
-  projectId: number
+  projectId: number,
+  userId: number
 ) {
+  const ismember = await memberRepo.findProjectMember(projectId, userId);
+  if (!ismember) {
+    throw new ForbiddenError("프로젝트 멤버가 아닙니다.");
+  }
   const members = await memberRepo.getMembers(page, limit, projectId);
   const invitations = await memberRepo.getInvitations(projectId);
   const data = members.map((item) => {
@@ -50,8 +55,20 @@ export async function getMembers(
 }
 
 // 프로젝트에서 유저 제외
-export async function deleteMember(projectId: number, userId: number) {
-  await memberRepo.deleteMember(projectId, userId);
+export async function deleteMember(
+  projectId: number,
+  memberId: number,
+  userId: number
+) {
+  const member = await memberRepo.findProjectMember(projectId, memberId);
+  if (!member) {
+    throw new NotFoundError("해당 프로젝트의 멤버가 아닙니다.");
+  }
+  const owner = await memberRepo.findProjectOwner(projectId);
+  if (userId !== owner?.id) {
+    throw new ForbiddenError("프로젝트 관리자가 아닙니다.");
+  }
+  await memberRepo.deleteMember(projectId, memberId);
   await memberRepo.updateStatus(projectId);
 }
 
@@ -59,13 +76,19 @@ export async function deleteMember(projectId: number, userId: number) {
 export async function inviteMember(
   projectId: number,
   email: string,
-  invitationId: string
+  invitationId: string,
+  userId: number
 ) {
+  const owner = await memberRepo.findProjectOwner(projectId);
+  if (userId !== owner?.id) {
+    throw new ForbiddenError("프로젝트 관리자가 아닙니다.");
+  }
+
   const existing = await memberRepo.findInvitation(projectId, email);
   if (existing) {
     throw new BadRequestError("이미 초대된 이메일입니다.");
   }
-  await memberRepo.createInvitation(projectId, email, invitationId);
+  await memberRepo.createInvitation(projectId, email, invitationId, userId);
   const inviteLink =
     "http://localhost:3000/invitations/" + invitationId + "/accept";
   console.log(inviteLink);
@@ -117,10 +140,13 @@ export async function acceptInvitation(invitationId: string, userId: number) {
 }
 
 // 초대 취소
-export async function cancelInvitation(invitationId: string) {
+export async function cancelInvitation(invitationId: string, userId: number) {
   const invitation = await memberRepo.findInvitationById(invitationId);
   if (!invitation) {
     throw new NotFoundError("유효하지 않은 초대입니다.");
+  }
+  if (invitation.invitedBy !== userId) {
+    throw new ForbiddenError("권한이 없습니다.");
   }
   if (invitation.status !== "PENDING") {
     throw new BadRequestError("이미 처리된 초대입니다.");

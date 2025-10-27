@@ -1,15 +1,28 @@
 import type { Request, Response } from "express";
 import * as memberService from "../services/member.service.js";
 import { randomUUID } from "crypto";
-import { AppError, getErrorMessage } from "../utils/error.js";
+import {
+  AppError,
+  getErrorMessage,
+  UnauthorizedError,
+} from "../utils/error.js";
 
 // 프로젝트 멤버 조회
 export async function getMembers(req: Request, res: Response) {
   try {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
     const projectId = Number(req.params.projectId);
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
-    const result = await memberService.getMembers(page, limit, projectId);
+    const result = await memberService.getMembers(
+      page,
+      limit,
+      projectId,
+      user.id!
+    );
     res.status(200).json(result);
   } catch (err) {
     if (err instanceof AppError) {
@@ -24,8 +37,12 @@ export async function getMembers(req: Request, res: Response) {
 export async function deleteMember(req: Request, res: Response) {
   try {
     const projectId = Number(req.params.projectId);
-    const userId = Number(req.params.userId);
-    await memberService.deleteMember(projectId, userId);
+    const memberId = Number(req.params.userId);
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+    await memberService.deleteMember(projectId, memberId, user.id!);
     res.status(200).json({ message: "success" });
   } catch (err) {
     if (err instanceof AppError) {
@@ -39,13 +56,19 @@ export async function deleteMember(req: Request, res: Response) {
 // 프로젝트에 멤버 초대
 export async function inviteMember(req: Request, res: Response) {
   try {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
+
     const projectId = Number(req.params.projectId);
     const { email } = req.body;
     const invitationId = randomUUID();
     const result = await memberService.inviteMember(
       projectId,
       email,
-      invitationId
+      invitationId,
+      user.id!
     );
     res.status(200).json({ "초대 링크": result });
   } catch (err) {
@@ -76,8 +99,12 @@ export async function acceptInvitation(req: Request, res: Response) {
 // 초대 취소
 export async function cancelInvitation(req: Request, res: Response) {
   try {
+    const user = req.user;
+    if (!user) {
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    }
     const invitationId = req.params.invitationId!;
-    await memberService.cancelInvitation(invitationId);
+    await memberService.cancelInvitation(invitationId, user.id!);
     res.status(200).json({ message: "초대가 취소되었습니다." });
   } catch (err) {
     if (err instanceof AppError) {
