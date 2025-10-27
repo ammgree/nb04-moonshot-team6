@@ -9,18 +9,24 @@ const opts = {
 };
 
 passport.use(
+  "jwt", 
   new JwtStrategy(opts, async (payload, done) => {
     try {
-      const user = await prisma.user.findUnique({ where: { id: payload.id } });
-      if (!user) return done(null, false); // 유저 없으면 인증 실패
-      return done(null, user); // 인증 성공, req.user에 user 할당
+      const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+      if (!user) {
+        console.log("DB에 해당 유저 없음:", payload.userId);
+        return done(null, false);
+      }
+      return done(null, user);
     } catch (err) {
+      console.error("JWT 인증 에러:", err);
       done(err, false);
     }
   })
 );
 
 passport.use(
+  'google',
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
