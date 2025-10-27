@@ -21,6 +21,7 @@ export interface CreateTaskData {
   endMonth: number;
   endDay: number;
   assigneeId: number;
+  attachments?: string[];
   tags?: string[];
 }
 
@@ -31,6 +32,7 @@ export interface CreateTaskPrismaInput {
   endAt: Date;
   projectId: number;
   assigneeId?: number;
+  attachments?: string[] | undefined;
   tags?: {
     tag: {
       connectOrCreate: {
@@ -52,7 +54,10 @@ export interface GetTasksQuery {
 }
 
 export interface TaskWithRelations extends Task {
-  files: File[];
+  files: {
+    id: number;
+    url: string;
+  }[];
   tags: {
     tag: {
       id: number;
@@ -90,5 +95,6 @@ export interface UpdateTaskPrismaInput {
   endAt?: Date;
   status?: TaskStatus;
   assigneeId?: number;
+  attachments?: string[];
   tags?: string[];
 }

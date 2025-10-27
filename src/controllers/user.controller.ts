@@ -1,9 +1,5 @@
 import service from "../services/user.service.js";
 import type { Request, Response } from "express";
-import express from "express";
-
-const app = express();
-app.use(express.json());
 
 // 회원가입 컨트롤러
 const createUserController = async (req: Request, res: Response) => {

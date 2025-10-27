@@ -1,7 +1,6 @@
 import express from "express";
-import passport from "passport";
+import passport from "../configs/passport.js";
 import {
-  register,
   login,
   refreshToken,
 } from "../controllers/auth.controller.js";
@@ -18,7 +17,8 @@ router.post("/login", login);
 // 구글 로그인 시작
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["email", "profile"] })
+  passport.authenticate("google", { scope: ["email", "profile"] }
+  )
 );
 
 // 구글 로그인 콜백
@@ -52,9 +52,26 @@ router.get(
 
       const result = await authService.signInWithGoogle(profile, meta);
 
+      res.cookie("access-token", result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 1000 * 60 * 15, // 15분
+        path: "/",
+      });
+
+      res.cookie("refresh-token", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+        path: "/",
+      });
+
       const redirectUrl = new URL("http://localhost:3000/");
 
       res.redirect(redirectUrl.toString());
+
     } catch (err) {
       next(err);
     }
