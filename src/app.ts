@@ -1,6 +1,5 @@
-import authRoutes from "./routes/auth.route.js";
-import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
 import uploadRouter from "./routes/upload.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
 import projectRouter from "./routes/project.route.js";
@@ -49,7 +48,7 @@ app.use(passport.initialize());
 
 app.use("/", uploadRouter); // 파일 업로드
 
-app.use("/auth", authRoutes); // 인증
+app.use("/auth", authRouter); // 인증
 
 app.use("/", userRouter); // 유저
 

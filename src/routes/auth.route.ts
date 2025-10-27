@@ -56,7 +56,7 @@ router.get(
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+        maxAge: 1000 * 60 * 15, // 15분
         path: "/",
       });
 
