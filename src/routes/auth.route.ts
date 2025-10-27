@@ -9,21 +9,21 @@ import authService from "../services/auth.service.js";
 const router = express.Router();
 
 // 토큰 갱신
-router.post("/refresh", refreshToken);
+router.post("/auth/refresh", refreshToken);
 
 // 로그인 라우터
-router.post("/login", login);
+router.post("/auth/login", login);
 
 // 구글 로그인 시작
 router.get(
-  "/google",
+  "/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] }
   )
 );
 
 // 구글 로그인 콜백
 router.get(
-  "/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", { session: false }),
   async (req, res, next) => {
     try {
