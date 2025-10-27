@@ -30,11 +30,11 @@ const getLogin = async (email: string, password: string) => {
     throw { status: 401, message: "이메일 또는 비밀번호가 잘못되었습니다." };
   }
   // 토큰 발급
-  const accessToken = auth.createToken(user);
-  const refreshToken = auth.createToken(user, "refresh");
+  // const accessToken = auth.createToken(user);
+  // const refreshToken = auth.createToken(user, "refresh");
 
-    // const accessToken = signAccessToken({ userId: user.id });
-    // const refreshToken = signRefreshToken({ userId: user.id });
+  const accessToken = signAccessToken({ userId: user.id });
+  const refreshToken = signRefreshToken({ userId: user.id });
 
   // 기존 refreshToken 모두 폐기
   await authRepo.revokeById(user.id);
