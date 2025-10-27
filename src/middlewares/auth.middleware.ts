@@ -13,7 +13,7 @@ dotenv.config();
 const createToken = (user: { id: number }, type?: string) => {
   const payload = { id: user.id };
   const options: jwt.SignOptions = {
-    expiresIn: type === "refresh" ? "4w" : "15m",
+    expiresIn: type === "refresh" ? "30d" : "15m",
   };
   return jwt.sign(payload, process.env.JWT_SECRET!, options);
 };
