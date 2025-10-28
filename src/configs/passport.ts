@@ -2,6 +2,7 @@ import passport from "passport";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import prisma from "./prisma.js"; // 값으로 import
+import { google } from "googleapis";
 
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Authorization: Bearer <token>
@@ -32,11 +33,15 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       callbackURL: process.env.GOOGLE_REDIRECT_URI!,
-    },
+      scope: ["email", "profile", "https://www.googleapis.com/auth/calendar"],
+      accessType: "offline",
+      prompt: "consent", // 처음 로그인 시 refresh token 발급
+    } as any,
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
-        if (!email) return done(new Error("Google account has no email"), false);
+        if (!email)
+          return done(new Error("Google account has no email"), false);
 
         // 기존 사용자 확인
         let user = await prisma.user.findUnique({ where: { email } });
@@ -53,7 +58,30 @@ passport.use(
           });
         }
 
-        done(null, user);
+        // GoogleToken 저장 또는 업데이트
+        const googleToken = await prisma.googleToken.upsert({
+          where: { userId: user.id },
+          update: { accessToken, refreshToken, updatedAt: new Date() },
+          create: { userId: user.id, accessToken, refreshToken },
+        });
+
+        const oAuth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET
+        );
+
+        oAuth2Client.setCredentials({
+          access_token: googleToken.accessToken,
+          refresh_token: googleToken.refreshToken ?? null, // undefined이면 null로
+        });
+
+        // req.user에 tokens 포함시키기 위해 확장
+        const userWithTokens = {
+          ...user,
+          tokens: googleToken,
+        };
+
+        done(null, userWithTokens);
       } catch (err) {
         done(err, false);
       }

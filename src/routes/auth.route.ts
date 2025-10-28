@@ -1,9 +1,6 @@
 import express from "express";
-import passport from "../configs/passport.js";
-import {
-  login,
-  refreshToken,
-} from "../controllers/auth.controller.js";
+import passport from "passport";
+import { login, refreshToken } from "../controllers/auth.controller.js";
 import authService from "../services/auth.service.js";
 
 const router = express.Router();
@@ -17,8 +14,15 @@ router.post("/auth/login", login);
 // 구글 로그인 시작
 router.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["email", "profile"] }
-  )
+  passport.authenticate("google", {
+    scope: [
+      "email",
+      "profile",
+      "https://www.googleapis.com/auth/calendar.events",
+    ],
+    accessType: "offline", // refresh token 받으려면 필수
+    prompt: "consent", // 이미 승인된 사용자도 refresh token 받기 위해
+  })
 );
 
 // 구글 로그인 콜백
@@ -71,7 +75,6 @@ router.get(
       const redirectUrl = new URL("http://localhost:3000/");
 
       res.redirect(redirectUrl.toString());
-
     } catch (err) {
       next(err);
     }
