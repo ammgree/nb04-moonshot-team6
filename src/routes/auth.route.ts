@@ -55,12 +55,13 @@ router.get(
       };
 
       const result = await authService.signInWithGoogle(profile, meta);
+      const frontDomain = "nb04-moonshot-team6-front.onrender.com";
 
       res.cookie("access-token", result.accessToken, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain : "https://nb04-moonshot-team6-front.onrender.com",
+        domain : frontDomain,
         maxAge: 1000 * 60 * 15, // 15분
         path: "/",
       });
@@ -69,7 +70,7 @@ router.get(
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain : "https://nb04-moonshot-team6-front.onrender.com",
+        domain : frontDomain,
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
         path: "/",
       });
@@ -87,7 +88,7 @@ router.get(
     <script>
       // 1초 정도 지연 후 프론트 페이지로 이동
       setTimeout(() => {
-        window.location.href = "https://nb04-moonshot-team6-front.onrender.com/projects";
+        window.location.href = "https://${frontDomain}/projects";
       }, 1000);
     </script>
   </body>
