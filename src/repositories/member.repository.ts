@@ -28,7 +28,7 @@ export async function getMembers(
 // 해당 프로젝트의 초대 목록 조회
 export async function getInvitations(projectId: number) {
   return await prisma.invitation.findMany({
-    where: { projectId, invitationId: { not: null } },
+    where: { projectId, invitationId: { not: null }, status: "PENDING" },
     select: {
       id: true,
       email: true,
@@ -38,7 +38,7 @@ export async function getInvitations(projectId: number) {
   });
 }
 
-// 이메일로 유저 조회
+// 이메일로 유저들 조회
 export async function findUsersByEmail(emails: string[]) {
   return await prisma.user.findMany({
     where: {
@@ -51,6 +51,13 @@ export async function findUsersByEmail(emails: string[]) {
       profileImage: true,
       tasksAssigned: true,
     },
+  });
+}
+
+// 이메일로 유저 찾기
+export async function findUserByEmail(email: string) {
+  return await prisma.user.findUnique({
+    where: { email },
   });
 }
 
