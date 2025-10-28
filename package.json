@@ -11,9 +11,6 @@
     "migrate": "prisma migrate deploy",
     "seed": "node --loader ts-node/esm prisma/seed.ts"
   },
-  "prisma": {
-    "seed": "npm run seed"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ammgree/nb04-moonshot-team6.git"
