@@ -46,3 +46,4 @@ uploads/
 prisma/seed.ts
 
 tsconfig.tsbuildinfo
+prisma/migrations

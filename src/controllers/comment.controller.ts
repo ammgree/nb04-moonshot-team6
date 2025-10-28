@@ -62,7 +62,7 @@ export const getTaskCommentsController = async (req: Request, res: Response) => 
     // 항상 배열로 반환해서 프론트에서 map 사용 가능
     res.status(200).json({
       message: "댓글 목록 조회 성공",
-      subTasks: comments?.data ?? [],
+      data: comments?.data ?? [],
       total: comments?.total ?? 0,
     });
   } catch (err) {
