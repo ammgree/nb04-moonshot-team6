@@ -98,5 +98,5 @@ export interface UpdateTaskPrismaInput {
   assigneeId?: number;
   attachments?: string[];
   tags?: string[];
-  googleEventId?: string;
+  googleEventId?: string | null;
 }

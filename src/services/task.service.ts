@@ -14,6 +14,7 @@ import {
   UnauthorizedError,
 } from "../utils/error.js";
 import { GoogleCalendarService } from "./googleCalendar.service.js";
+import { TaskStatus } from "@prisma/client";
 
 export const TaskService = {
   createTask: async (
@@ -152,13 +153,27 @@ export const TaskService = {
 
     const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
 
-    // 2️⃣ 구글 캘린더 이벤트 업데이트
-    if (existingTask.googleEventId) {
-      await GoogleCalendarService.updateEvent(
+    // 구글 캘린더 이벤트 업데이트
+    if (prismaInput.status === TaskStatus.DONE && existingTask.googleEventId) {
+      // 완료 처리 시 캘린더 이벤트 삭제
+      await GoogleCalendarService.deleteEvent(
         userId,
-        existingTask.googleEventId,
+        existingTask.googleEventId
+      );
+      await TaskRepository.updateTask({ googleEventId: null }, taskId);
+    } else if (
+      prismaInput.status !== TaskStatus.DONE &&
+      !existingTask.googleEventId
+    ) {
+      3;
+      // 진행 중으로 바꾸면 새로 캘린더 이벤트 생성
+      const newEventId = await GoogleCalendarService.createEvent(
+        userId,
         updateTask
       );
+      if (newEventId) {
+        await TaskRepository.updateTask({ googleEventId: newEventId }, taskId);
+      }
     }
 
     return TaskToResponse(updateTask);
