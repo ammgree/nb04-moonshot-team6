@@ -77,14 +77,27 @@ export const TaskRepository = {
           }
         : { projectId };
 
-    let orderBy: Prisma.TaskOrderByWithRelationInput = {
-      createdAt: "desc",
+    const orderByFieldMap: Record<
+      string,
+      keyof Prisma.TaskOrderByWithRelationInput
+    > = {
+      created_at: "createdAt",
+      end_date: "endAt",
+      title: "title",
     };
 
-    if (query.order_by && query.order) {
-      orderBy = {
-        [query.order_by]: query.order,
-      };
+    let orderBy: Prisma.TaskOrderByWithRelationInput = {
+      createdAt: "desc", // 기본값
+    };
+
+    if (query.order_by) {
+      const field = orderByFieldMap[query.order_by];
+      if (field) {
+        const order =
+          field === "endAt" ? "asc" : query.order === "asc" ? "asc" : "desc";
+
+        orderBy = { [field]: order };
+      }
     }
 
     const [tasks, total] = await Promise.all([
