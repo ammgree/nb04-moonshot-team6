@@ -19,9 +19,9 @@ router
     passport.authenticate("jwt", { session: false }),
     memberController.inviteMember
   )
-  .post(
+  .get(
     "/invitations/:invitationId/accept",
-    passport.authenticate("jwt", { session: false }),
+//    passport.authenticate("jwt", { session: false }),
     memberController.acceptInvitation
   )
   .delete(
