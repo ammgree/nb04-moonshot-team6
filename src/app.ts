@@ -16,6 +16,7 @@ import passport from "./configs/passport.js";
 import dotenv from "dotenv";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
+import './configs/cron.js';
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
