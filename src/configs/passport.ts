@@ -5,20 +5,18 @@ import prisma from "./prisma.js"; // 값으로 import
 import { google } from "googleapis";
 import type { Request, Response, NextFunction } from "express";
 
-// 쿠키에서 access-token 읽기
-const cookieExtractor = (req:Request) => {
-  let token = null;
-  if (req && req.cookies) {
-    token = req.cookies["refresh-token"]; // 쿠키 이름과 일치
-  }
-  return token;
-};
+// // 쿠키에서 access-token 읽기
+// const cookieExtractor = (req:Request) => {
+//   let token = null;
+//   if (req && req.cookies) {
+//     token = req.cookies["refresh-token"]; // 쿠키 이름과 일치
+//   }
+//   return token;
+// };
 
 const opts = {
-  jwtFromRequest: ExtractJwt.fromExtractors([
-    cookieExtractor,
-    ExtractJwt.fromAuthHeaderAsBearerToken(), // 두 방식 다 지원
-  ]),
+  jwtFromRequest: 
+    ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_ACCESS_SECRET!,
 };
 

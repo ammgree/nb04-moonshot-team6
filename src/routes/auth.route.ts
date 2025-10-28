@@ -56,41 +56,32 @@ router.get(
 
       const result = await authService.signInWithGoogle(profile, meta);
 
-      res.cookie("refresh-token", result.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
-        path: "/",
-      });
+      // res.cookie("refresh-token", result.refreshToken, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+      //   path: "/",
+      // });
 
-      res.cookie("access-token", result.accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 1000 * 60 * 15, // 15분
-        path: "/",
-      });
+      // res.cookie("access-token", result.accessToken, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   maxAge: 1000 * 60 * 15, // 15분
+      //   path: "/",
+      // });
 
-      //const redirectUrl = new URL("https://nb04-moonshot-team6-front.onrender.com/");
+      const redirectUrl = new URL(
+        "https://nb04-moonshot-team6-front.onrender.com/auth/success"
+      );
 
-      //res.redirect(redirectUrl.toString());
-      // ✅ JSON 응답으로 보내기
-      res.status(200).send("cookie test ok");
-//       res.send(`
-// <html>
-//   <body>
-//     <h1>로그인 완료!</h1>
-//     <p>잠시 후 프론트 페이지로 이동합니다...</p>
-//     <script>
-//       // 1초 정도 지연 후 프론트 페이지로 이동
-//       setTimeout(() => {
-//         window.location.href = "https://${frontDomain}/projects";
-//       }, 1000);
-//     </script>
-//   </body>
-// </html>
-// `);
+      redirectUrl.searchParams.set("accessToken", result.accessToken);
+      redirectUrl.searchParams.set("refreshToken", result.refreshToken);
+
+      // ✅ 프론트로 리다이렉트 (쿠키 세팅 안 함)
+      res.redirect(redirectUrl.toString());
+
     } catch (err) {
       next(err);
     }
