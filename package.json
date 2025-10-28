@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --watch src --exec \"node --loader ts-node/esm src/app.ts\"",
-    "start": "npx prisma migrate deploy && node dist/app.js",
+    "start": "prisma migrate deploy && node dist/app.js",
+    "migrate": "prisma migrate deploy",
     "seed": "node --loader ts-node/esm prisma/seed.ts"
   },
   "prisma": {
