@@ -141,6 +141,7 @@ export const updateProject = async (
 // 프로젝트 삭제
 // -------------------------
 
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 // 테스트/프로덕션 공용 sendMail 함수
 const sendMailSafe = async (options: {
