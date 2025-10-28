@@ -69,8 +69,6 @@ export default {
         profileImage: profile.picture ?? null,
       });
     }
-    // const accessToken = auth.createToken(user);
-    // const refreshToken = auth.createToken(user, "refresh");
 
     const accessToken = signAccessToken({ userId: user.id });
     const refreshToken = signRefreshToken({ userId: user.id });
