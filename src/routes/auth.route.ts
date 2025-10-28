@@ -55,16 +55,7 @@ router.get(
       };
 
       const result = await authService.signInWithGoogle(profile, meta);
-      const frontDomain = "nb04-moonshot-team6-front.onrender.com";
-
-      res.cookie("access-token", result.accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain : frontDomain,
-        maxAge: 1000 * 60 * 15, // 15분
-        path: "/",
-      });
+      const frontDomain = ".nb04-moonshot-team6-front.onrender.com";
 
       res.cookie("refresh-token", result.refreshToken, {
         httpOnly: true,
@@ -72,6 +63,15 @@ router.get(
         sameSite: "none",
         domain : frontDomain,
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+        path: "/",
+      });
+
+      res.cookie("access-token", result.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        domain : frontDomain,
+        maxAge: 1000 * 60 * 15, // 15분
         path: "/",
       });
 
