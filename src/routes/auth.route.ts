@@ -58,16 +58,16 @@ router.get(
 
       res.cookie("access-token", result.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
         maxAge: 1000 * 60 * 15, // 15분
         path: "/",
       });
 
       res.cookie("refresh-token", result.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
         path: "/",
       });
