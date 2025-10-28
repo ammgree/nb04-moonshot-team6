@@ -56,30 +56,26 @@ router.get(
 
       const result = await authService.signInWithGoogle(profile, meta);
 
-      // res.cookie("refresh-token", result.refreshToken, {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-      //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
-      //   path: "/",
-      // });
+      res.cookie("refresh-token", result.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+        path: "/",
+      });
 
-      // res.cookie("access-token", result.accessToken, {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-      //   maxAge: 1000 * 60 * 15, // 15분
-      //   path: "/",
-      // });
+      res.cookie("access-token", result.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 15, // 15분
+        path: "/",
+      });
 
       const redirectUrl = new URL(
-        "https://nb04-moonshot-team6-front.onrender.com/auth/success"
+        "https://nb04-moonshot-team6-front.onrender.com/"
       );
 
-      redirectUrl.searchParams.set("accessToken", result.accessToken);
-      redirectUrl.searchParams.set("refreshToken", result.refreshToken);
-
-      // ✅ 프론트로 리다이렉트 (쿠키 세팅 안 함)
       res.redirect(redirectUrl.toString());
 
     } catch (err) {
