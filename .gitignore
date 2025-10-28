@@ -17,16 +17,6 @@ logs/
 tmp/
 .nyc_output/
 
-# Prisma
-*.db
-*.sqlite
-*.sqlite-journal
-*.toml
-
-# PostgreSQL
-*.dump
-*.sql
-
 # 캐시
 .cache/
 .parcel-cache/
@@ -46,4 +36,3 @@ uploads/
 prisma/seed.ts
 
 tsconfig.tsbuildinfo
-prisma/migrations
