@@ -15,10 +15,8 @@ const cookieExtractor = (req:Request) => {
 };
 
 const opts = {
-  jwtFromRequest: ExtractJwt.fromExtractors([
-    cookieExtractor,
-    ExtractJwt.fromAuthHeaderAsBearerToken(), // 두 방식 다 지원
-  ]),
+  jwtFromRequest: 
+    ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_ACCESS_SECRET!,
 };
 
