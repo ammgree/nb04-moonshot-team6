@@ -25,7 +25,6 @@ tmp/
 
 # PostgreSQL
 *.dump
-*.sql
 
 # 캐시
 .cache/
