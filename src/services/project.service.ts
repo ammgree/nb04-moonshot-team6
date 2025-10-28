@@ -169,7 +169,7 @@ export const deleteProject = async (userId: number, projectId: number) => {
       .filter((member) => member.userId !== userId)
       .map((member) =>
         sendMailSafe({
-          from: `"Moonshot" <${process.env.SMTP_USER}>`
+          from: `"Moonshot" <${process.env.SMTP_USER}>`,
           ...(process.env.NODE_ENV === "production" && {
             to: member.user.email,
           }),
