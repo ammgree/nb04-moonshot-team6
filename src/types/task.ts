@@ -86,6 +86,7 @@ export interface UpdateTaskData {
   assigneeId?: number;
   tags?: string[];
   attachments?: string[];
+  googleEventId?: string;
 }
 
 export interface UpdateTaskPrismaInput {
@@ -97,4 +98,5 @@ export interface UpdateTaskPrismaInput {
   assigneeId?: number;
   attachments?: string[];
   tags?: string[];
+  googleEventId?: string | null;
 }
