@@ -87,5 +87,9 @@ export const UpdateTaskDataToPrisma = (
     input.attachments = data.attachments;
   }
 
+  if (data.googleEventId != undefined) {
+    input.googleEventId = data.googleEventId;
+  }
+
   return input;
 };

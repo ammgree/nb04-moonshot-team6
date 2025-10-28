@@ -13,6 +13,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../utils/error.js";
+import { GoogleCalendarService } from "./googleCalendar.service.js";
 
 export const TaskService = {
   createTask: async (
@@ -55,6 +56,16 @@ export const TaskService = {
         },
       })),
     });
+
+    const googleEventId = await GoogleCalendarService.createEvent(
+      assigneeId,
+      task
+    );
+
+    // 3️⃣ DB에 googleEventId 저장 (옵션)
+    if (googleEventId) {
+      await TaskRepository.updateTask({ googleEventId }, task.id);
+    }
 
     return TaskToResponse(task);
   },
@@ -134,7 +145,21 @@ export const TaskService = {
 
     const prismaInput = UpdateTaskDataToPrisma(body);
 
+    const existingTask = await TaskRepository.getTaskId(taskId);
+    if (!existingTask) {
+      throw new NotFoundError("할 일을 찾을 수 없습니다.");
+    }
+
     const updateTask = await TaskRepository.updateTask(prismaInput, taskId);
+
+    // 2️⃣ 구글 캘린더 이벤트 업데이트
+    if (existingTask.googleEventId) {
+      await GoogleCalendarService.updateEvent(
+        userId,
+        existingTask.googleEventId,
+        updateTask
+      );
+    }
 
     return TaskToResponse(updateTask);
   },
@@ -157,6 +182,10 @@ export const TaskService = {
 
     if (!task) {
       throw new NotFoundError("할 일을 찾을 수 없습니다.");
+    }
+
+    if (task.googleEventId) {
+      await GoogleCalendarService.deleteEvent(userId, task.googleEventId);
     }
 
     await TaskRepository.deleteTask(taskId);

@@ -46,6 +46,7 @@ model User {
   filesUploaded   File[]
   invitationsSent Invitation[]    @relation("UserInvitations")
   refreshTokens   RefreshToken[]
+  tokens          GoogleToken? @relation("UserGoogleToken")
 }
 
 model RefreshToken {
@@ -187,3 +188,16 @@ model TaskTag {
 
   @@id([taskId, tagId])
 }
+
+model GoogleToken {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  accessToken  String
+  refreshToken String?
+  expiryDate   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User    @relation("UserGoogleToken", fields: [userId], references: [id])
+}
+
