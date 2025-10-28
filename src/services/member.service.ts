@@ -49,7 +49,7 @@ export async function getMembers(
       email: user.email,
       profileImage: user.profileImage,
       taskCount: user.tasksAssigned.length,
-      status: invite?.status || "ACCEPTED",
+      status: invite?.status || "accepted",
       invitationId: invite?.invitationId || null,
     };
   });

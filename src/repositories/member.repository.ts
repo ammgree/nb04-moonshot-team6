@@ -28,7 +28,7 @@ export async function getMembers(
 // 해당 프로젝트의 초대 목록 조회
 export async function getInvitations(projectId: number) {
   return await prisma.invitation.findMany({
-    where: { projectId, invitationId: { not: null } },
+    where: { projectId, invitationId: { not: null }, status: "PENDING" },
     select: {
       id: true,
       email: true,
