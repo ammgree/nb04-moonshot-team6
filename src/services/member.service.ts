@@ -20,6 +20,25 @@ const transporter = nodemailer.createTransport({
     pass: pass,
   },
 });
+import sgMail from "@sendgrid/mail"
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+
+// 테스트/프로덕션 공용 sendMail 함수
+const sendMailSafe = async (options: {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+}) => {
+  try {
+    const res = await sgMail.send(options);
+    console.log('메일 전송 성공:', res);
+    return res;
+  } catch (error) {
+    console.error('메일 전송 오류:', error);
+    throw error;
+  }
+};
 
 // 프로젝트 멤버 조회
 export async function getMembers(
@@ -100,21 +119,25 @@ export async function inviteMember(
   console.log(inviteLink);
 
   const mailOptions = {
-    from: user,
+    from: `"Moonshot" <${process.env.SMTP_USER!}>`,
     to: email,
     subject: "프로젝트 초대 링크입니다.",
     html: `<h2>프로젝트 초대 링크입니다.</h2>
     <p>아래 링크를 클릭하여 초대를 수락하세요.</p>
     <a href="${inviteLink}">초대 수락</a>`,
   };
+  
+  sendMailSafe(mailOptions)
 
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.log("이메일 전송 실패", error);
-    } else {
-      console.log("이메일 전송 성공", info);
-    }
-  });
+  
+  // transporter.sendMail(mailOptions, (error, info) => {
+  //   if (error) {
+  //     console.log("이메일 전송 실패", error);
+  //   } else {
+  //     console.log("이메일 전송 성공", info);
+  //   }
+  // });
+  
   return inviteLink;
 }
 
