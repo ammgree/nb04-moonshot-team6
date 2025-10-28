@@ -170,7 +170,7 @@ export const deleteProject = async (userId: number, projectId: number) => {
       .map((member) =>
         sendMailSafe({
           from: `"Moonshot" <${process.env.SMTP_USER}>`,
-          ...(process.env.NODE_ENV === "production" && {
+          ...({
             to: member.user.email,
           }),
           subject: `프로젝트 "${project.name}" 삭제 안내`,
