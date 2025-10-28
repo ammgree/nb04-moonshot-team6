@@ -96,7 +96,7 @@ export async function inviteMember(
   }
   await memberRepo.createInvitation(projectId, email, invitationId, userId);
   const inviteLink =
-    "http://localhost:3001/invitations/" + invitationId + "/accept";
+    "https://nb04-moonshot-team6.onrender.com/invitations/" + invitationId + "/accept";
   console.log(inviteLink);
 
   const mailOptions = {
