@@ -3,9 +3,22 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import prisma from "./prisma.js"; // 값으로 import
 import { google } from "googleapis";
+import type { Request, Response, NextFunction } from "express";
+
+// 쿠키에서 access-token 읽기
+const cookieExtractor = (req:Request) => {
+  let token = null;
+  if (req && req.cookies) {
+    token = req.cookies["access-token"];
+  }
+  return token;
+};
 
 const opts = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Authorization: Bearer <token>
+  jwtFromRequest: ExtractJwt.fromExtractors([
+    cookieExtractor,
+    ExtractJwt.fromAuthHeaderAsBearerToken(), // 두 방식 다 지원
+  ]),
   secretOrKey: process.env.JWT_ACCESS_SECRET!,
 };
 
