@@ -9,7 +9,7 @@ import type { Request, Response, NextFunction } from "express";
 const cookieExtractor = (req:Request) => {
   let token = null;
   if (req && req.cookies) {
-    token = req.cookies["access-token"]; // 쿠키 이름과 일치
+    token = req.cookies["refresh-token"]; // 쿠키 이름과 일치
   }
   return token;
 };
