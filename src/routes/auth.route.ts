@@ -72,7 +72,7 @@ router.get(
         path: "/",
       });
 
-      const redirectUrl = new URL("http://localhost:3000/");
+      const redirectUrl = new URL("https://nb04-moonshot-team6-front.onrender.com/");
 
       res.redirect(redirectUrl.toString());
     } catch (err) {
