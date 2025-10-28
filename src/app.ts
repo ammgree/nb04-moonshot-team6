@@ -15,6 +15,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import passport from "./configs/passport.js";
 import dotenv from "dotenv";
 import router from "./routes/index.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
@@ -30,6 +31,8 @@ app.use(
     allowedHeaders: ["Authorization", "Content-Type"],
   })
 );
+
+app.use(cookieParser());
 
 app.use(morgan("dev"));
 
