@@ -80,6 +80,9 @@ export default {
 
     const expiresAt = new Date(Date.now() + ms(ACCESS_TOKEN_EXPIRES_IN));
 
+    // 기존 refreshToken 모두 폐기
+    await authRepo.revokeById(user.id);
+
     await authRepo.createRefreshToken({
       token: refreshToken,
       userId: user.id,

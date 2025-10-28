@@ -79,7 +79,6 @@ router.get(
 
       //res.redirect(redirectUrl.toString());
       // ✅ JSON 응답으로 보내기
-      // 🔹 프론트 건드리지 않고 그냥 메시지 응답
       res.status(200).send("cookie test ok");
 //       res.send(`
 // <html>
