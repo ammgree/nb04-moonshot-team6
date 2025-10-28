@@ -72,11 +72,11 @@ router.get(
         path: "/",
       });
 
-      //const redirectUrl = new URL("https://nb04-moonshot-team6-front.onrender.com/");
+      const redirectUrl = new URL("https://nb04-moonshot-team6-front.onrender.com/");
 
-      //res.redirect(redirectUrl.toString());
+      res.redirect(redirectUrl.toString());
       // ✅ JSON 응답으로 보내기
-      res.status(200).send("cookie test ok");
+      // res.status(200).send("cookie test ok");
 //       res.send(`
 // <html>
 //   <body>
