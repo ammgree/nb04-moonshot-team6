@@ -147,7 +147,7 @@ export async function acceptInvitation(invitationId: string) {
     <h1>초대가 수락되었습니다.</h1>
     <p>프로젝트에 성공적으로 참여하셨습니다.</p>
     <a
-      href="/projects/${invitation!.projectId}"
+      href="http://localhost:3000/projects/${invitation!.projectId}/tasks"
       >프로젝트 페이지로 이동</a
     >
   </body>
