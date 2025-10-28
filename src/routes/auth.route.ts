@@ -88,7 +88,7 @@ router.get(
     <script>
       // 1초 정도 지연 후 프론트 페이지로 이동
       setTimeout(() => {
-        window.location.href = "https://${frontDomain}/projects";
+        window.location.href = "https://nb04-moonshot-team6-front.onrender.com/projects";
       }, 1000);
     </script>
   </body>
