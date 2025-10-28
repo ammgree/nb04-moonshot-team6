@@ -60,6 +60,7 @@ router.get(
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain : "https://nb04-moonshot-team6-front.onrender.com",
         maxAge: 1000 * 60 * 15, // 15분
         path: "/",
       });
@@ -68,6 +69,7 @@ router.get(
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain : "https://nb04-moonshot-team6-front.onrender.com",
         maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
         path: "/",
       });
