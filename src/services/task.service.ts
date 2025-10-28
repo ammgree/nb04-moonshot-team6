@@ -161,18 +161,26 @@ export const TaskService = {
         existingTask.googleEventId
       );
       await TaskRepository.updateTask({ googleEventId: null }, taskId);
-    } else if (
-      prismaInput.status !== TaskStatus.DONE &&
-      !existingTask.googleEventId
-    ) {
-      3;
-      // 진행 중으로 바꾸면 새로 캘린더 이벤트 생성
-      const newEventId = await GoogleCalendarService.createEvent(
-        userId,
-        updateTask
-      );
-      if (newEventId) {
-        await TaskRepository.updateTask({ googleEventId: newEventId }, taskId);
+    } else if (prismaInput.status !== TaskStatus.DONE) {
+      if (!existingTask.googleEventId) {
+        // 새로 이벤트 생성
+        const newEventId = await GoogleCalendarService.createEvent(
+          userId,
+          updateTask
+        );
+        if (newEventId) {
+          await TaskRepository.updateTask(
+            { googleEventId: newEventId },
+            taskId
+          );
+        }
+      } else {
+        // 기존 이벤트 업데이트 (날짜, 제목 등)
+        await GoogleCalendarService.updateEvent(
+          userId,
+          existingTask.googleEventId,
+          updateTask
+        );
       }
     }
 
