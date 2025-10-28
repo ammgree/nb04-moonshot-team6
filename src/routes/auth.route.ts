@@ -57,14 +57,14 @@ router.get(
       const result = await authService.signInWithGoogle(profile, meta);
       const frontDomain = ".nb04-moonshot-team6-front.onrender.com";
 
-      res.cookie("refresh-token", result.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain : frontDomain,
-        maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
-        path: "/",
-      });
+      // res.cookie("refresh-token", result.refreshToken, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   domain : frontDomain,
+      //   maxAge: 1000 * 60 * 60 * 24 * 30, // 30일
+      //   path: "/",
+      // });
 
       res.cookie("access-token", result.accessToken, {
         httpOnly: true,
