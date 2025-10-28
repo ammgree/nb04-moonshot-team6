@@ -4,7 +4,6 @@ import {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
-  UnauthorizedError,
 } from "../utils/error.js";
 
 // 이메일 전송을 위한 nodemailer 설정
@@ -97,7 +96,7 @@ export async function inviteMember(
   }
   await memberRepo.createInvitation(projectId, email, invitationId, userId);
   const inviteLink =
-    "http://localhost:3000/invitations/" + invitationId + "/accept";
+    "http://localhost:3001/invitations/" + invitationId + "/accept";
   console.log(inviteLink);
 
   const mailOptions = {
@@ -120,10 +119,8 @@ export async function inviteMember(
 }
 
 // 초대 수락
-export async function acceptInvitation(invitationId: string, userId: number) {
-  if (!userId) {
-    throw new UnauthorizedError("로그인이 필요합니다.");
-  }
+export async function acceptInvitation(invitationId: string) {
+  // invitationId는 인바이트의 PK 값
   const invitation = await memberRepo.findInvitationById(invitationId);
   if (!invitation) {
     throw new NotFoundError("유효하지 않은 초대입니다.");
@@ -131,19 +128,31 @@ export async function acceptInvitation(invitationId: string, userId: number) {
   if (invitation.status !== "PENDING") {
     throw new BadRequestError("이미 처리된 초대입니다.");
   }
-  const user = await memberRepo.findUserById(userId);
+
+  const user = await memberRepo.findUserByEmail(invitation.email);
   if (!user) {
     throw new NotFoundError("유효하지 않은 사용자입니다.");
   }
-  if (invitation.email !== user.email) {
-    throw new ForbiddenError("권한이 없습니다.");
-  }
-  await memberRepo.createProjectMember(invitation.projectId, userId);
+  await memberRepo.createProjectMember(invitation!.projectId, user!.id);
   await memberRepo.updateInvitationStatus(
     invitationId,
     "ACCEPTED" as InvitationStatus
   );
-  return { message: "초대가 수락되었습니다." };
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <title>초대 수락 완료</title>
+  </head>
+  <body>
+    <h1>초대가 수락되었습니다.</h1>
+    <p>프로젝트에 성공적으로 참여하셨습니다.</p>
+    <a
+      href="/projects/${invitation!.projectId}"
+      >프로젝트 페이지로 이동</a
+    >
+  </body>
+</html>
+`;
 }
 
 // 초대 취소
