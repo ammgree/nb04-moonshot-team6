@@ -149,9 +149,16 @@ const sendMailSafe = async (options: {
   to: string;
   subject: string;
   text: string;
-}) => {  
-  return sgMail.send(options);
-  } 
+}) => {
+  try {
+    const res = await sgMail.send(options);
+    console.log('메일 전송 성공:', res);
+    return res;
+  } catch (error) {
+    console.error('메일 전송 오류:', error);
+    throw error;
+  }
+};
 
 export const deleteProject = async (userId: number, projectId: number) => {
   if (!userId || isNaN(userId))
@@ -170,8 +177,8 @@ export const deleteProject = async (userId: number, projectId: number) => {
       .filter((member) => member.userId !== userId)
       .map((member) =>
         sendMailSafe({
-          from: `${process.env.SMTP_USER}`,
-          to: member.user.email ? member.user.email : `${process.env.SMTP_USER}`,
+          from: `"Moonshot" <moonshot.team6@gmail.com>`,
+          to: member.user.email ? member.user.email : process.env.SMTP_USER!,
           subject: `프로젝트 "${project.name}" 삭제 안내`,
           text: `참여 중인 프로젝트 "${project.name}"가 삭제되었습니다.`,
         })
