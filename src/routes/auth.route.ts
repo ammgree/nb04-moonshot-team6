@@ -78,13 +78,19 @@ router.get(
       // ✅ JSON 응답으로 보내기
       // 🔹 프론트 건드리지 않고 그냥 메시지 응답
       res.send(`
-        <html>
-          <body>
-            <h1>로그인 완료!</h1>
-            <p>이제 다른 페이지로 이동해도 쿠키 기반 인증이 가능합니다.</p>
-          </body>
-        </html>
-      `);
+<html>
+  <body>
+    <h1>로그인 완료!</h1>
+    <p>잠시 후 프론트 페이지로 이동합니다...</p>
+    <script>
+      // 1초 정도 지연 후 프론트 페이지로 이동
+      setTimeout(() => {
+        window.location.href = "https://nb04-moonshot-team6-front.onrender.com/projects";
+      }, 1000);
+    </script>
+  </body>
+</html>
+`);
     } catch (err) {
       next(err);
     }
