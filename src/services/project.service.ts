@@ -145,7 +145,7 @@ export const updateProject = async (
 // 테스트/프로덕션 공용 sendMail 함수
 const sendMailSafe = async (options: {
   from: string;
-  to?: string;
+  to: string;
   subject: string;
   text: string;
 }) => {  
@@ -170,9 +170,7 @@ export const deleteProject = async (userId: number, projectId: number) => {
       .map((member) =>
         sendMailSafe({
           from: `"Moonshot" <${process.env.SMTP_USER}>`,
-          ...({
-            to: member.user.email,
-          }),
+          to: member.user.email ? member.user.email : `${process.env.SMTP_USER}`,
           subject: `프로젝트 "${project.name}" 삭제 안내`,
           text: `참여 중인 프로젝트 "${project.name}"가 삭제되었습니다.`,
         })
