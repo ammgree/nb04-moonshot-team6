@@ -93,6 +93,9 @@ export async function deleteMember(
   if (userId !== owner?.id) {
     throw new ForbiddenError("프로젝트 관리자가 아닙니다.");
   }
+  if (memberId === owner?.id) {
+    throw new BadRequestError("프로젝트 소유자는 제외할 수 없습니다.");
+  }
   await memberRepo.deleteMember(projectId, memberId);
   await memberRepo.updateStatus(projectId);
 }
@@ -115,7 +118,9 @@ export async function inviteMember(
   }
   await memberRepo.createInvitation(projectId, email, invitationId, userId);
   const inviteLink =
-    "https://nb04-moonshot-team6.onrender.com/invitations/" + invitationId + "/accept";
+    "https://nb04-moonshot-team6.onrender.com/invitations/" +
+    invitationId +
+    "/accept";
   console.log(inviteLink);
 
   const mailOptions = {
