@@ -86,17 +86,18 @@ export const TaskRepository = {
       title: "title",
     };
 
-    let orderBy: Prisma.TaskOrderByWithRelationInput = {
-      createdAt: "desc", // 기본값
-    };
+    // 기본 정렬: createdAt, endAt, title 모두 asc
+    let orderBy: Prisma.TaskOrderByWithRelationInput[] = [
+      { createdAt: "asc" },
+      { endAt: "asc" },
+      { title: "asc" },
+    ];
 
     if (query.order_by) {
       const field = orderByFieldMap[query.order_by];
       if (field) {
-        const order =
-          field === "endAt" ? "asc" : query.order === "asc" ? "asc" : "desc";
-
-        orderBy = { [field]: order };
+        // 쿼리 들어오면 무조건 asc
+        orderBy = [{ [field]: "asc" }];
       }
     }
 
