@@ -42,54 +42,15 @@ Database: PostgreSQL<br>
 이재훈
 (자신이 개발한 기능에 대한 사진이나 gif 파일 첨부)
 
-## 파일 구조
-
-```
-src
- ┣ configs
- ┃ ┗ db.ts
- ┣ controllers
- ┃ ┣ auth.controller.ts
- ┃ ┗ user.controller.ts
- ┣ middlewares
- ┃ ┣ auth.middleware.ts
- ┃ ┗ error.middleware.ts
- ┣ models
- ┃ ┣ user.model.ts
- ┃ ┗ course.model.ts
- ┣ repositories
- ┃ ┣ auth.repository.ts
- ┃ ┗ user.repository.ts
- ┣ routes
- ┃ ┣ auth.route.ts
- ┃ ┗ user.route.ts
- ┣ services
- ┃ ┣ auth.service.ts
- ┃ ┗ user.service.ts
- ┣ utils
- ┃ ┣ jwt.ts
- ┃ ┣ constants.ts
- ┃ ┗ logger.ts
- ┣ app.ts
- ┗ server.ts
-prisma
- ┣ schema.prisma
- ┗ seed.ts
-.env
-.gitignore
-package-lock.json
-package.json
-README.md
-tsconfig.json
-```
-
 ## 구현 홈페이지
 
-(개발한 홈페이지에 대한 링크 게시)
+주소: https://nb04-moonshot-team6-front.onrender.com
 
 ## 프로젝트 회고록
 
 (제작한 발표자료 링크 혹은 첨부파일 첨부)
+
+## 파일 구조
 
 ```
 nb04-moonshot-team6
@@ -97,45 +58,70 @@ nb04-moonshot-team6
 ├─ package-lock.json
 ├─ package.json
 ├─ prisma
-│  ├─ migrations
-│  │  └─ 20251010152601_init
 │  ├─ schema.prisma
 │  └─ seed.ts
 ├─ src
 │  ├─ app.ts
 │  ├─ configs
+│  │  ├─ cloudinary.ts
 │  │  ├─ passport.ts
 │  │  └─ prisma.ts
 │  ├─ controllers
 │  │  ├─ auth.controller.ts
+│  │  ├─ comment.controller.ts
+│  │  ├─ dashboard.controller.ts
+│  │  ├─ member.controller.ts
 │  │  ├─ project.controller.ts
+│  │  ├─ subtask.controller.ts
+│  │  ├─ task.controller.ts
 │  │  └─ user.controller.ts
 │  ├─ middlewares
 │  │  ├─ auth.middleware.ts
-│  │  └─ error.middleware.ts
-│  ├─ models
-│  │  └─ user.model.ts
+│  │  ├─ error.middleware.ts
+│  │  └─ upload.middleware.ts
 │  ├─ repositories
 │  │  ├─ auth.repository.ts
+│  │  ├─ comment.repository.ts
+│  │  ├─ member.repository.ts
 │  │  ├─ project.repository.ts
+│  │  ├─ subtask.repository.ts
+│  │  ├─ task.repository.ts
 │  │  └─ user.repository.ts
 │  ├─ routes
 │  │  ├─ auth.route.ts
+│  │  ├─ comment.route.ts
+│  │  ├─ dashboard.route.ts
 │  │  ├─ index.ts
+│  │  ├─ member.route.ts
 │  │  ├─ project.route.ts
+│  │  ├─ subtask.router.ts
+│  │  ├─ task.router.ts
+│  │  ├─ upload.route.ts
 │  │  └─ user.route.ts
-│  ├─ server.ts
 │  ├─ services
 │  │  ├─ auth.service.ts
+│  │  ├─ comment.service.ts
+│  │  ├─ dashboard.service.ts
+│  │  ├─ googleCalendar.service.ts
+│  │  ├─ member.service.ts
 │  │  ├─ project.service.ts
+│  │  ├─ subtask.service.ts
+│  │  ├─ task.service.ts
+│  │  ├─ upload.service.ts
 │  │  └─ user.service.ts
 │  ├─ types
-│  │  └─ express.d.ts
+│  │  ├─ express.d.ts
+│  │  └─ task.ts
 │  └─ utils
 │     ├─ constants.ts
 │     ├─ error.ts
-│     └─ jwt.ts
+│     ├─ HttpError.ts
+│     ├─ jwt.ts
+│     ├─ logger.ts
+│     ├─ statusMapper.ts
+│     └─ task.utils.ts
 ├─ tsconfig.json
+├─ tsconfig.tsbuildinfo
 └─ tsconfig.seed.json
 
 ```
